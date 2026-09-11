@@ -8,6 +8,7 @@ Searches for TK prior art and classical formulation matches using:
 import json
 import logging
 from pathlib import Path
+import re
 from typing import Dict, List, Optional, Set
 
 from backend.app.config import settings
@@ -59,27 +60,60 @@ class TKFormulationSearchService:
             self._synonyms = {}
         return self._synonyms
 
+    def _resolve_canonical_candidates(self, name: str) -> Set[str]:
+        """Resolve a text string to all canonical ingredient keys it contains or references."""
+        synonyms = self._load_synonyms()
+        name_lower = name.lower().strip()
+        candidates: Set[str] = set()
+
+        if name_lower in synonyms:
+            candidates.add(name_lower)
+
+        for canonical, syn_list in synonyms.items():
+            if name_lower in [s.lower() for s in syn_list]:
+                candidates.add(canonical)
+
+        paren_matches = re.findall(r"\((.*?)\)", name_lower)
+        for pm in paren_matches:
+            pm_clean = pm.strip()
+            if pm_clean in synonyms:
+                candidates.add(pm_clean)
+            for canonical, syn_list in synonyms.items():
+                if pm_clean in [s.lower() for s in syn_list]:
+                    candidates.add(canonical)
+
+        stripped = re.sub(r"\(.*?\)", "", name_lower).strip()
+        if stripped in synonyms:
+            candidates.add(stripped)
+        for canonical, syn_list in synonyms.items():
+            if stripped in [s.lower() for s in syn_list]:
+                candidates.add(canonical)
+
+        for canonical, syn_list in synonyms.items():
+            all_names = [canonical] + [s.lower() for s in syn_list]
+            for term in all_names:
+                pattern = r"\b" + re.escape(term) + r"\b"
+                if re.search(pattern, name_lower):
+                    candidates.add(canonical)
+                    break
+
+        if not candidates:
+            candidates.add(stripped or name_lower)
+
+        return candidates
+
     def _get_canonical_name(self, ingredient: str) -> str:
         """Resolve an ingredient to its canonical key using synonym map."""
-        synonyms = self._load_synonyms()
-        ingredient_lower = ingredient.lower().strip()
-
-        # Direct key match
-        if ingredient_lower in synonyms:
-            return ingredient_lower
-
-        # Search in synonym values
-        for canonical, syn_list in synonyms.items():
-            if ingredient_lower in [s.lower() for s in syn_list]:
-                return canonical
-
-        return ingredient_lower
+        candidates = self._resolve_canonical_candidates(ingredient)
+        if candidates:
+            return sorted(candidates)[0]
+        return ingredient.lower().strip()
 
     def _ingredients_match(self, name_a: str, name_b: str) -> bool:
         """Check if two ingredient names refer to the same substance."""
-        canon_a = self._get_canonical_name(name_a)
-        canon_b = self._get_canonical_name(name_b)
-        return canon_a == canon_b
+        cand_a = self._resolve_canonical_candidates(name_a)
+        cand_b = self._resolve_canonical_candidates(name_b)
+        return bool(cand_a & cand_b)
 
     def _search_seed_formulations(
         self,
@@ -92,7 +126,7 @@ class TKFormulationSearchService:
 
         user_ingredients_canonical: Set[str] = set()
         for ing in formulation.ingredients:
-            user_ingredients_canonical.add(self._get_canonical_name(ing.name))
+            user_ingredients_canonical.update(self._resolve_canonical_candidates(ing.name))
 
         results: List[tuple] = []
         for form in seed_data:
@@ -100,7 +134,7 @@ class TKFormulationSearchService:
             form_ingredients_canonical: Set[str] = set()
             all_ing_names = form.get("ingredients", []) + form.get("botanical_names", [])
             for name in all_ing_names:
-                form_ingredients_canonical.add(self._get_canonical_name(name))
+                form_ingredients_canonical.update(self._resolve_canonical_candidates(name))
 
             # Calculate overlap
             overlap = user_ingredients_canonical & form_ingredients_canonical
