@@ -1,0 +1,138 @@
+{
+  "version": "1.0.0",
+  "start_node_id": "q1_classical_text_match",
+  "nodes": {
+    "q1_classical_text_match": {
+      "type": "question",
+      "id": "q1_classical_text_match",
+      "question_en": "Is this formulation drawn directly and unmodified from an authoritative classical Ayurvedic text listed in the First Schedule (e.g., Charaka Samhita, Sushruta Samhita, Ayurvedic Formulary of India)?",
+      "question_hi": "क्या यह फॉर्मूलेशन प्रथम अनुसूची में सूचीबद्ध प्रामाणिक शास्त्रीय आयुर्वेदिक ग्रंथ (जैसे चरक संहिता, सुश्रुत संहिता, एएफआई) से हूबहू और बिना किसी संशोधन के लिया गया है?",
+      "description_en": "First Schedule of Drugs & Cosmetics Act, 1940 lists 54 recognized authoritative books of Ayurveda.",
+      "description_hi": "ड्रग्स एंड कॉस्मेटिक्स एक्ट, 1940 की पहली अनुसूची में आयुर्वेद के 54 मान्यता प्राप्त ग्रंथ सूचीबद्ध हैं।",
+      "options": [
+        {
+          "id": "yes",
+          "label_en": "Yes — Exact classical recipe & method",
+          "label_hi": "हाँ — सटीक शास्त्रीय नुस्खा एवं विधि",
+          "next_node_id": "outcome_classical_generic"
+        },
+        {
+          "id": "no",
+          "label_en": "No — Contains modifications, new combinations, or new processes",
+          "label_hi": "नहीं — इसमें संशोधन, नए संयोजन या नई प्रक्रियाएं शामिल हैं",
+          "next_node_id": "q2_modification_type"
+        }
+      ]
+    },
+    "outcome_classical_generic": {
+      "type": "outcome",
+      "id": "outcome_classical_generic",
+      "category": "classical_generic",
+      "notes_en": "Classified as Classical Generic Formulation. Not eligible for product patents in India under Section 3(p) of the Patents Act (Traditional Knowledge bar). Protected against biopiracy via TKDL prior art citations.",
+      "notes_hi": "शास्त्रीय जेनेरिक फॉर्मूलेशन के रूप में वर्गीकृत। पेटेंट अधिनियम की धारा 3(p) (पारंपरिक ज्ञान प्रतिबंध) के तहत भारत में उत्पाद पेटेंट हेतु पात्र नहीं। टीकेडीएल (TKDL) पूर्व कला संदर्भों के माध्यम से बायोपायरेसी से सुरक्षित।",
+      "abs_guidance_en": "Mandatory compliance with Biological Diversity Act, 2002 (Sec 3/4/6). Foreign individuals/entities or Indian companies with foreign shareholding require prior approval from the National Biodiversity Authority (NBA) before accessing biological resources or filing IP.",
+      "abs_guidance_hi": "जैव विविधता अधिनियम, 2002 (धारा 3/4/6) का अनिवार्य अनुपालन। विदेशी संस्थाओं या विदेशी शेयरधारिता वाली भारतीय कंपनियों को जैविक संसाधनों तक पहुंच या आईपी फाइलिंग से पूर्व एनबीए (NBA) की अनुमति आवश्यक है।"
+    },
+    "q2_modification_type": {
+      "type": "question",
+      "id": "q2_modification_type",
+      "question_en": "Does the formulation involve dedicated clinical trial safety/efficacy data, a standardized purified phytochemical fraction, or a specific intended use (dietary/cosmetic)?",
+      "question_hi": "क्या फॉर्मूलेशन में समर्पित नैदानिक परीक्षण सुरक्षा/प्रभाव डेटा, मानकीकृत शुद्ध फाइटोकेमिकल अंश, या कोई विशिष्ट उद्देश्य (आहार/प्रसाधन) शामिल है?",
+      "description_en": "Identifies the regulatory pathway between P&P drug, new drug, phytopharmaceutical, food, or cosmetic.",
+      "description_hi": "पीएंडपी औषधि, नई औषधि, फाइटोफार्मा, आहार या कॉस्मेटिक के बीच विनियामक मार्ग की पहचान करता है।",
+      "options": [
+        {
+          "id": "clinical_evidence",
+          "label_en": "Has clinical safety/efficacy evidence for new indications/dosage",
+          "label_hi": "नए संकेतों/खुराक के लिए नैदानिक सुरक्षा/प्रभावशीलता डेटा उपलब्ध है",
+          "next_node_id": "outcome_new_non_classical_drug"
+        },
+        {
+          "id": "phytopharmaceutical",
+          "label_en": "Standardized purified botanical extract (minimum 4 bioactive markers)",
+          "label_hi": "मानकीकृत शुद्ध वानस्पतिक अर्क (न्यूनतम 4 बायोएक्टिव मार्कर)",
+          "next_node_id": "outcome_phytopharmaceutical"
+        },
+        {
+          "id": "intended_category",
+          "label_en": "Intended as dietary food (Ayurveda Aahar), cosmetic, or general proprietary blend",
+          "label_hi": "आहार (आयुर्वेद आहार), प्रसाधन सामग्री, या सामान्य प्रोप्राइटरी मिश्रण के रूप में अभिप्रेत",
+          "next_node_id": "q3_non_drug_intended_category"
+        }
+      ]
+    },
+    "outcome_new_non_classical_drug": {
+      "type": "outcome",
+      "id": "outcome_new_non_classical_drug",
+      "category": "new_non_classical_drug",
+      "notes_en": "Classified as New Non-Classical Ayurvedic Drug. Strong potential for patent claims under Section 2(1)(j) if synergistic efficacy (overcoming Sec 3(e)) and enhanced therapeutic efficacy (Sec 3(d)) are proven with trial data.",
+      "notes_hi": "नवीन गैर-शास्त्रीय औषधि के रूप में वर्गीकृत। धारा 2(1)(j) के तहत पेटेंट की मजबूत संभावना यदि परीक्षण डेटा के साथ सहक्रियात्मक प्रभाव (धारा 3(e)) और चिकित्सीय प्रभावशीलता (धारा 3(d)) सिद्ध हो।",
+      "abs_guidance_en": "Prior NBA clearance under Section 6 of BDA 2002 is mandatory before filing patent applications inside or outside India.",
+      "abs_guidance_hi": "भारत में या बाहर पेटेंट आवेदन दायर करने से पूर्व बीडीए 2002 की धारा 6 के तहत एनबीए की पूर्वानुमति अनिवार्य है।"
+    },
+    "outcome_phytopharmaceutical": {
+      "type": "outcome",
+      "id": "outcome_phytopharmaceutical",
+      "category": "phytopharmaceutical",
+      "notes_en": "Classified as Phytopharmaceutical Drug under Rule 122E of Drugs & Cosmetics Rules. Treated as standard pharmaceutical with structured IND/CDSCO review. Full composition and extraction process patent eligibility.",
+      "notes_hi": "ड्रग्स एंड कॉस्मेटिक्स रूल्स के नियम 122E के तहत फाइटोफार्मास्युटिकल ड्रग के रूप में वर्गीकृत। संरचित IND/CDSCO समीक्षा के साथ मानक फार्मास्युटिकल के रूप में मान्य। संरचना और निष्कर्षण प्रक्रिया पेटेंट हेतु पात्र।",
+      "abs_guidance_en": "Biological resource sourcing and benefit sharing agreements (Form I / Form III) must be executed with National Biodiversity Authority (NBA).",
+      "abs_guidance_hi": "जैविक संसाधन सोर्सिंग और लाभ साझाकरण समझौते (फॉर्म I / फॉर्म III) राष्ट्रीय जैव विविधता प्राधिकरण (NBA) के साथ निष्पादित होने चाहिए।"
+    },
+    "q3_non_drug_intended_category": {
+      "type": "question",
+      "id": "q3_non_drug_intended_category",
+      "question_en": "What is the primary positioning and market presentation of this formulation?",
+      "question_hi": "इस फॉर्मूलेशन की प्राथमिक स्थिति और बाजार प्रस्तुति क्या है?",
+      "description_en": "Determines whether FSSAI food, cosmetic, or standard AYUSH P&P medicine rules apply.",
+      "description_hi": "यह निर्धारित करता है कि FSSAI खाद्य, कॉस्मेटिक, या मानक आयुष P&P औषधि नियम लागू होते हैं।",
+      "options": [
+        {
+          "id": "ayurveda_aahar",
+          "label_en": "Dietary food, tea, or nutritional supplement (Ayurveda Aahar)",
+          "label_hi": "आहार, हर्बल चाय या पोषण पूरक (आयुर्वेद आहार)",
+          "next_node_id": "outcome_ayurveda_aahar"
+        },
+        {
+          "id": "cosmetic",
+          "label_en": "Topical cosmetic, skin/hair care, or beauty product",
+          "label_hi": "त्वचा/बालों की देखभाल या सौंदर्य प्रसाधन उत्पाद",
+          "next_node_id": "outcome_cosmetic"
+        },
+        {
+          "id": "proprietary_medicine",
+          "label_en": "Ayurvedic therapeutic proprietary medicine (P&P) without clinical trial data",
+          "label_hi": "बिना नैदानिक डेटा वाली आयुर्वेदिक प्रोप्राइटरी औषधि (P&P)",
+          "next_node_id": "outcome_patent_or_proprietary"
+        }
+      ]
+    },
+    "outcome_ayurveda_aahar": {
+      "type": "outcome",
+      "id": "outcome_ayurveda_aahar",
+      "category": "ayurveda_aahar_nutraceutical",
+      "notes_en": "Classified as Ayurveda Aahar regulated under FSSAI (Ayurveda Aahar) Regulations 2022. Distinct special logo required. Medicinal/disease cure claims strictly prohibited.",
+      "notes_hi": "FSSAI (आयुर्वेद आहार) विनियम 2022 के तहत विनियमित आयुर्वेद आहार के रूप में वर्गीकृत। विशिष्ट विशेष लोगो अनिवार्य। औषधीय/रोग निवारक दावे सख्त वर्जित।",
+      "abs_guidance_en": "Sourcing biological raw materials may attract State Biodiversity Board (SBB) intimation and benefit sharing under Section 7 of BDA 2002.",
+      "abs_guidance_hi": "जैविक कच्चे माल की सोर्सिंग पर बीडीए 2002 की धारा 7 के तहत राज्य जैव विविधता बोर्ड (SBB) की सूचना और लाभ साझाकरण लागू हो सकता है।"
+    },
+    "outcome_cosmetic": {
+      "type": "outcome",
+      "id": "outcome_cosmetic",
+      "category": "cosmetic",
+      "notes_en": "Classified as Ayurvedic Cosmetic under Drugs & Cosmetics Act Sec 3(aaa). Must adhere to BIS norms and labeling standards. Cannot make therapeutic disease claims.",
+      "notes_hi": "औषधि एवं प्रसाधन सामग्री अधिनियम की धारा 3(aaa) के तहत आयुर्वेदिक प्रसाधन सामग्री के रूप में वर्गीकृत। बीआईएस (BIS) मानकों और लेबलिंग नियमों का पालन आवश्यक। चिकित्सीय दावे निषिद्ध।",
+      "abs_guidance_en": "Commercial cosmetic use of bio-resources falls under Biological Diversity Act access regulations.",
+      "abs_guidance_hi": "जैव-संसाधनों का व्यावसायिक कॉस्मेटिक उपयोग जैव विविधता अधिनियम के पहुंच नियमों के अंतर्गत आता है।"
+    },
+    "outcome_patent_or_proprietary": {
+      "type": "outcome",
+      "id": "outcome_patent_or_proprietary",
+      "category": "patent_or_proprietary",
+      "notes_en": "Classified as Patent or Proprietary (P&P) Medicine under Section 3(h) of Drugs and Cosmetics Act. Subject to Section 3(p) traditional knowledge bar and Section 3(e) mere admixture bar unless synergistic action is demonstrated.",
+      "notes_hi": "औषधि एवं प्रसाधन सामग्री अधिनियम की धारा 3(h) के तहत पेटेंट या प्रोप्राइटरी (P&P) औषधि के रूप में वर्गीकृत। पारंपरिक ज्ञान (धारा 3(p)) और मात्र मिश्रण (धारा 3(e)) की पेटेंट बाधाओं के अधीन, जब तक कि सहक्रियात्मक क्रिया प्रदर्शित न हो।",
+      "abs_guidance_en": "Section 3, 4, and 6 of Biological Diversity Act apply for patent filing or commercial exploitation.",
+      "abs_guidance_hi": "पेटेंट फाइलिंग या व्यावसायिक उपयोग के लिए जैव विविधता अधिनियम की धारा 3, 4 और 6 लागू होती हैं।"
+    }
+  }
+}

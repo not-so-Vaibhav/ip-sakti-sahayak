@@ -1,0 +1,44 @@
+[
+  {
+    "code": "classical_generic",
+    "display_name_en": "Classical Generic Formulation",
+    "display_name_hi": "शास्त्रीय जेनेरिक फॉर्मूलेशन",
+    "ip_posture_summary_en": "Drawn directly from First-Schedule classical Ayurvedic texts (e.g., Charaka Samhita, Sushruta Samhita, AFI) without modification. Faces a strict bar under Section 3(p) of the Indian Patents Act, 1970 as traditional knowledge. Defended globally via TKDL prior art. Subject to Section 3/4/6 of Biological Diversity Act (BDA 2002) for commercial utilization and export.",
+    "ip_posture_summary_hi": "प्रथम अनुसूची के प्रामाणिक शास्त्रीय आयुर्वेदिक ग्रंथों (जैसे चरक संहिता, सुश्रुत संहिता, एएफआई) से अपरिवर्तित रूप में लिया गया। भारतीय पेटेंट अधिनियम 1970 की धारा 3(p) के तहत पारंपरिक ज्ञान होने के कारण पेटेंट अयोग्य है। टीकेडीएल (TKDL) द्वारा वैश्विक रूप से संरक्षित। व्यावसायिक उपयोग और निर्यात हेतु जैव विविधता अधिनियम (BDA 2002) की धारा 3/4/6 के अधीन।"
+  },
+  {
+    "code": "patent_or_proprietary",
+    "display_name_en": "Patent or Proprietary Medicine (P&P)",
+    "display_name_hi": "पेटेंट या प्रोप्राइटरी औषधि (P&P)",
+    "ip_posture_summary_en": "Formulation containing classical Ayurvedic ingredients but in novel combinations, modern dosage forms, or modified processes without full classical textual identity. Governed by Section 3(h) of Drugs and Cosmetics Act, 1940. Patentability subject to proving synergistic efficacy under Section 3(e) and overcoming Section 3(p). National Biodiversity Authority (NBA) approval mandatory for foreign entities or IP filing.",
+    "ip_posture_summary_hi": "पारंपरिक आयुर्वेदिक घटकों से युक्त किंतु नए संयोजन, आधुनिक खुराक स्वरूप, या संशोधित प्रक्रिया आधारित औषधि। औषधि एवं प्रसाधन सामग्री अधिनियम, 1940 की धारा 3(h) द्वारा शासित। पेटेंट हेतु धारा 3(e) (सिनर्जिस्टिक प्रभाव) और धारा 3(p) की बाधाओं को पार करना आवश्यक है। विदेशी संस्थाओं या आईपी फाइलिंग हेतु राष्ट्रीय जैव विविधता प्राधिकरण (NBA) की अनुमति अनिवार्य।"
+  },
+  {
+    "code": "new_non_classical_drug",
+    "display_name_en": "New Non-Classical Ayurvedic Drug",
+    "display_name_hi": "नवीन गैर-शास्त्रीय औषधि",
+    "ip_posture_summary_en": "Ayurvedic formulation supported by dedicated preclinical and clinical safety/efficacy trial data. Stronger patent viability under Section 2(1)(j) for inventive step, provided Section 3(p) and 3(d) enhancement thresholds are met with empirical data. Stringent Central/State AYUSH licensing and ABS compliance.",
+    "ip_posture_summary_hi": "समर्पित प्रीक्लिनिकल और क्लिनिकल सुरक्षा/प्रभावशीलता परीक्षण डेटा द्वारा समर्थित आयुर्वेदिक फॉर्मूलेशन। धारा 2(1)(j) के तहत पेटेंट की मजबूत संभावना यदि धारा 3(p) और 3(d) की प्रभावशीलता वृद्धि आवश्यकताओं को अनुभवजन्य डेटा से संतुष्ट किया जाए। कड़े आयुष लाइसेंसिंग और एबीएस अनुपालन आवश्यक।"
+  },
+  {
+    "code": "phytopharmaceutical",
+    "display_name_en": "Phytopharmaceutical Drug",
+    "display_name_hi": "पादप-औषधीय (फाइटोफार्मास्युटिकल) ड्रग",
+    "ip_posture_summary_en": "Standardized purified fraction (with minimum 4 bioactive markers) of medicinal plants for therapeutic use, regulated under Drugs & Cosmetics Rules Chapter IV-A (Rule 122E). Eligible for standard pharmaceutical patent claims (composition, extraction method) if novel and inventive, subject to mandatory NBA approval under Section 6 of Biological Diversity Act.",
+    "ip_posture_summary_hi": "चिकित्सीय उपयोग हेतु औषधीय पौधों का मानकीकृत शुद्ध अंश (न्यूनतम 4 बायोएक्टिव मार्कर सहित), जो ड्रग्स एंड कॉस्मेटिक्स रूल्स के अध्याय IV-A (नियम 122E) के तहत विनियमित है। नवीनता और आविष्कारशीलता सिद्ध होने पर मानक फार्मा पेटेंट हेतु पात्र, बशर्ते जैव विविधता अधिनियम की धारा 6 के तहत एनबीए की मंजूरी प्राप्त हो।"
+  },
+  {
+    "code": "ayurveda_aahar_nutraceutical",
+    "display_name_en": "Ayurveda Aahar (Nutraceutical / Food)",
+    "display_name_hi": "आयुर्वेद आहार (न्यूट्रास्युटिकल / खाद्य)",
+    "ip_posture_summary_en": "Food or dietary supplement prepared according to classical Ayurvedic dietary texts, regulated under FSSAI (Ayurveda Aahar) Regulations 2022. Cannot make medicinal therapeutic/cure claims. Trademark, trade dress, and unique processing method patents may apply, but primary regulatory compliance is with FSSAI rather than AYUSH drug licensing.",
+    "ip_posture_summary_hi": "शास्त्रीय आयुर्वेदिक आहार ग्रंथों के अनुसार तैयार किया गया खाद्य या पूरक आहार, जो FSSAI (आयुर्वेद आहार) विनियम 2022 के तहत विनियमित है। इस पर चिकित्सीय इलाज या रोग-निवारण के दावे नहीं किए जा सकते। ट्रेडमार्क, ट्रेड ड्रेस और विशिष्ट प्रसंस्करण विधि पेटेंट लागू हो सकते हैं, किंतु प्राथमिक अनुपालन FSSAI के साथ है।"
+  },
+  {
+    "code": "cosmetic",
+    "display_name_en": "Ayurvedic Cosmetic / Personal Care",
+    "display_name_hi": "आयुर्वेदिक प्रसाधन सामग्री (कॉस्मेटिक)",
+    "ip_posture_summary_en": "Formulation for topical cleansing, beautifying, or altering appearance containing botanical ingredients. Governed by Drugs and Cosmetics Act Section 3(aaa) and Bureau of Indian Standards (BIS) cosmetic norms. Cannot assert drug claims. Strong IP focus on trademark, industrial design, and packaging trade dress.",
+    "ip_posture_summary_hi": "त्वचा, बालों या शरीर की स्वच्छता, सौंदर्य या निखार हेतु वानस्पतिक सामग्री युक्त उत्पाद। औषधि एवं प्रसाधन सामग्री अधिनियम की धारा 3(aaa) और बीआईएस (BIS) सौंदर्य प्रसाधन मानकों द्वारा शासित। औषधीय दावे नहीं किए जा सकते। ट्रेडमार्क, औद्योगिक डिजाइन और पैकेजिंग ट्रेड ड्रेस पर मुख्य आईपी सुरक्षा।"
+  }
+]

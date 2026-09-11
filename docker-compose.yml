@@ -1,0 +1,26 @@
+version: "3.8"
+
+services:
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: ip_sakti_qdrant
+    ports:
+      - "6333:6333"   # REST API
+      - "6334:6334"   # gRPC
+    volumes:
+      - qdrant_data:/qdrant/storage
+
+volumes:
+  qdrant_data:
+
+# Usage:
+#   docker compose up -d
+#   Qdrant dashboard: http://localhost:6333/dashboard
+#
+# Supabase is NOT included here — it's a managed cloud service.
+# Create a free project at https://supabase.com, then run schema_mvp.sql
+# in its SQL editor. Put the resulting connection string in your .env.
+#
+# Ollama (local LLM for dev) is also not containerized here — install
+# natively on macOS for best M1 performance: https://ollama.com
+#   ollama pull qwen3:4b
