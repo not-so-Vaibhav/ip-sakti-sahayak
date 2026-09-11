@@ -7,7 +7,7 @@ using LLM-constrained JSON extraction with regex fallback.
 import json
 import logging
 import re
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Set
 
 import httpx
 
@@ -115,7 +115,7 @@ class FormulationExtractor:
             return None
 
     def _regex_fallback(self, text: str) -> Dict[str, List[Dict]]:
-        """Regex-based heuristic extraction when LLM fails."""
+        """Dictionary-assisted heuristic extraction when LLM fails or is offline."""
         result: Dict[str, List[Dict]] = {
             "ingredients": [],
             "ratios": [],
@@ -126,49 +126,98 @@ class FormulationExtractor:
 
         text_lower = text.lower()
 
-        # Extract ratios (patterns like "3:1", "2:1:1", "1 part : 2 parts")
+        # 1. Extract ratios (e.g. "1:1", "3:1", "2:1:1")
         ratio_matches = re.findall(r"\b(\d+(?:\.\d+)?(?:\s*:\s*\d+(?:\.\d+)?)+)\b", text)
         for r in ratio_matches:
             result["ratios"].append({"name": f"ratio {r}", "value": r.replace(" ", "")})
 
-        # Extract known processes
+        # 2. Extract known processes
         for proc in KNOWN_PROCESSES:
-            if proc in text_lower:
+            if re.search(r"\b" + re.escape(proc) + r"\b", text_lower):
                 result["processes"].append({"name": proc, "value": None})
 
-        # Extract known dosage forms
+        # 3. Extract known dosage forms
         for form in KNOWN_DOSAGE_FORMS:
-            if form in text_lower:
+            if re.search(r"\b" + re.escape(form) + r"\b", text_lower):
                 result["dosage_forms"].append({"name": form, "value": None})
 
-        # Extract comma/plus-separated ingredient candidates
-        # Remove known processes and dosage forms from the text before splitting
-        cleaned = text_lower
-        for proc in KNOWN_PROCESSES:
-            cleaned = cleaned.replace(proc, "")
-        for form in KNOWN_DOSAGE_FORMS:
-            cleaned = cleaned.replace(form, "")
-        # Remove ratio patterns
-        cleaned = re.sub(r"\b\d+(?:\.\d+)?(?:\s*:\s*\d+(?:\.\d+)?)+\b", "", cleaned)
+        # 4. Extract known clinical uses
+        KNOWN_CLINICAL_USES = [
+            "wound healing", "skin inflammation", "joint pain", "pain relief",
+            "fever", "digestion", "immunity", "cough", "cold", "diabetes",
+            "blood sugar", "arthritis", "skin disorders", "hair loss",
+            "stress", "anxiety", "sleep disorders", "weight loss",
+            "blood purification", "anti-aging", "vrana ropana", "kustha",
+            "inflammation", "wound", "healing",
+            "सूजन", "दर्द", "बुखार", "पाचन", "त्वचा", "घाव भरने",
+        ]
+        matched_uses: Set[str] = set()
+        for kw in KNOWN_CLINICAL_USES:
+            if re.search(r"\b" + re.escape(kw) + r"\b", text_lower):
+                # Avoid adding redundant sub-tokens if longer phrase matches
+                if not any(kw in longer and kw != longer for longer in matched_uses):
+                    matched_uses.add(kw)
+        for u in sorted(matched_uses):
+            result["intended_uses"].append({"name": u, "value": None})
 
-        # Split on common delimiters
-        parts = re.split(r"[,+&;]|\band\b|\bwith\b|\bfor\b|\bके साथ\b|\bऔर\b", cleaned)
-        for part in parts:
-            part = part.strip().strip(".")
-            # Filter out non-ingredient fragments
-            if part and len(part) > 1 and len(part) < 60 and not part.isdigit():
-                # Check if it looks like an intended use
-                use_keywords = [
-                    "inflammation", "pain", "healing", "wound", "fever", "digestion",
-                    "immunity", "cough", "cold", "diabetes", "arthritis", "skin",
-                    "hair", "joint", "stress", "anxiety", "sleep", "weight",
-                    "सूजन", "दर्द", "बुखार", "पाचन", "त्वचा", "बालों",
-                ]
-                is_use = any(kw in part.lower() for kw in use_keywords)
-                if is_use:
-                    result["intended_uses"].append({"name": part, "value": None})
-                else:
-                    result["ingredients"].append({"name": part.title(), "value": None})
+        # 5. Dictionary-grounded ingredient extraction from ingredient_synonyms.json
+        syn_path = settings.resolve_path(
+            getattr(settings, "ingredient_synonyms_path", "config/ingredient_synonyms.json")
+        )
+        dict_ingredients: Set[str] = set()
+        if syn_path.exists():
+            try:
+                with open(syn_path, "r", encoding="utf-8") as f:
+                    synonyms_data = json.load(f)
+                for canonical, aliases in synonyms_data.items():
+                    all_names = [canonical] + aliases
+                    for alias in all_names:
+                        if re.search(r"\b" + re.escape(alias.lower()) + r"\b", text_lower):
+                            dict_ingredients.add(canonical.title())
+                            break
+            except Exception as e:
+                logger.warning(f"Synonym loading failed in extractor: {e}")
+
+        for ing in sorted(dict_ingredients):
+            result["ingredients"].append({"name": ing, "value": None})
+
+        # 6. Fallback splitting if dictionary found no ingredients
+        if not result["ingredients"]:
+            cleaned = text_lower
+            for proc in KNOWN_PROCESSES:
+                cleaned = cleaned.replace(proc, "")
+            for form in KNOWN_DOSAGE_FORMS:
+                cleaned = cleaned.replace(form, "")
+            cleaned = re.sub(r"\b\d+(?:\.\d+)?(?:\s*:\s*\d+(?:\.\d+)?)+\b", "", cleaned)
+
+            # Strip common conversational boilerplate
+            stop_phrases = [
+                r"\ba traditional ayurvedic formulation containing\b",
+                r"\ban ayurvedic formulation containing\b",
+                r"\ba traditional formulation containing\b",
+                r"\ba formulation containing\b",
+                r"\bthe formulation is based on\b",
+                r"\bingredients and preparation methods described in classical ayurvedic practice\b",
+                r"\bdescribed in classical ayurvedic practice\b",
+                r"\bclassical ayurvedic practice\b",
+                r"\bprepared as a\b",
+                r"\bprepared as\b",
+                r"\bintended for\b",
+                r"\bintended as\b",
+                r"\bin a \d+:\d+ ratio\b",
+                r"\bin a ratio of\b",
+                r"\bin a ratio\b",
+            ]
+            for sp in stop_phrases:
+                cleaned = re.sub(sp, "", cleaned)
+
+            parts = re.split(r"[,+&;]|\band\b|\bwith\b|\bfor\b|\bके साथ\b|\bऔर\b", cleaned)
+            for part in parts:
+                part = part.strip().strip(".")
+                if part and len(part) > 1 and len(part) < 60 and not part.isdigit():
+                    is_use = any(kw in part.lower() for kw in KNOWN_CLINICAL_USES)
+                    if not is_use and len(part.split()) <= 4:
+                        result["ingredients"].append({"name": part.title(), "value": None})
 
         return result
 

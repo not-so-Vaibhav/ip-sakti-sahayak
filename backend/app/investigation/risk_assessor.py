@@ -134,13 +134,15 @@ class RiskAssessor:
         self,
         comparison: ComparisonMatrix,
         evidence: List[EvidenceSource],
+        category: str = "classical_generic",
     ) -> Tuple[float, List[str]]:
         """Compute novelty risk from patent overlap scores."""
         patent_sources = [
             s for s in evidence if s.source_type == EvidenceSourceType.PATENT
         ]
         if not patent_sources:
-            return 0.15, []
+            base_score = 0.85 if category == "classical_generic" else 0.15
+            return base_score, []
 
         max_overlap = 0.0
         top_patent_ids = []
@@ -148,17 +150,22 @@ class RiskAssessor:
             overlap = comparison.overlap_scores.get(src.source_id, 0.0)
             if overlap > max_overlap:
                 max_overlap = overlap
-            if overlap > 0.3:
+            if overlap > 0.2:
                 top_patent_ids.append(src.source_id)
 
-        # Higher overlap = higher risk to novelty
+        # Base score from patent overlap
         score = min(1.0, max_overlap * 1.2)
+        # Classical generic formulations face strict Section 3(p) & 3(e) exclusions
+        if category == "classical_generic":
+            score = max(score, 0.85)
+
         return score, top_patent_ids
 
     def _compute_tk_overlap(
         self,
         comparison: ComparisonMatrix,
         evidence: List[EvidenceSource],
+        category: str = "classical_generic",
     ) -> Tuple[float, List[str]]:
         """Compute TK overlap risk from classical formulation matches."""
         tk_sources = [
@@ -166,7 +173,8 @@ class RiskAssessor:
             if s.source_type in (EvidenceSourceType.TK_SOURCE, EvidenceSourceType.FORMULATION)
         ]
         if not tk_sources:
-            return 0.1, []
+            base_score = 0.80 if category == "classical_generic" else 0.1
+            return base_score, []
 
         max_overlap = 0.0
         top_tk_ids = []
@@ -174,10 +182,13 @@ class RiskAssessor:
             overlap = comparison.overlap_scores.get(src.source_id, 0.0)
             if overlap > max_overlap:
                 max_overlap = overlap
-            if overlap > 0.3:
+            if overlap > 0.2:
                 top_tk_ids.append(src.source_id)
 
         score = min(1.0, max_overlap * 1.1)
+        if category == "classical_generic":
+            score = max(score, 0.80)
+
         return score, top_tk_ids
 
     def _compute_abs_compliance(
@@ -252,8 +263,8 @@ class RiskAssessor:
     ) -> RiskAssessment:
         """Generate complete multi-dimensional risk assessment."""
         # Compute each dimension
-        novelty_score, novelty_evidence = self._compute_novelty_risk(comparison, evidence)
-        tk_score, tk_evidence = self._compute_tk_overlap(comparison, evidence)
+        novelty_score, novelty_evidence = self._compute_novelty_risk(comparison, evidence, category)
+        tk_score, tk_evidence = self._compute_tk_overlap(comparison, evidence, category)
         reg_level, reg_score, reg_reason = REGULATORY_COMPLEXITY_MAP.get(
             category,
             (RiskLevel.MEDIUM, 0.5, "Unknown category — moderate regulatory complexity assumed."),
@@ -311,19 +322,38 @@ class RiskAssessor:
             logger.warning(f"Failed to generate risk reasoning: {e}")
 
         # Build dimensions
+        default_novelty = (
+            "Section 3(p) of the Patents Act, 1970 strictly excludes traditional knowledge from patentability. Section 3(e) prohibits combinations of known herbal ingredients absent empirical demonstration of synergistic therapeutic bio-enhancement."
+            if category == "classical_generic"
+            else f"Novelty risk based on {patent_count} patent matches with max {max_patent_overlap:.0%} overlap."
+        )
+        default_tk = (
+            f"Direct traditional knowledge overlap detected ({max_tk_overlap:.0%}) with classical Ayurvedic treatises recognized under the First Schedule of the Drugs & Cosmetics Act, 1940 (e.g., Charaka Samhita, Sushruta Samhita) and the TKDL prior art corpus."
+            if category == "classical_generic"
+            else f"TK overlap based on {tk_count} classical source matches with max {max_tk_overlap:.0%} overlap."
+        )
+        default_abs = (
+            "Biological Diversity Act, 2002 Section 6 mandates prior approval from the National Biodiversity Authority (NBA Form III) before applying for any IP. Domestic manufacturers require State Biodiversity Board (SBB) intimation."
+        )
+        default_prior = (
+            f"Significant prior art exposure with {research_count} scientific papers, {tk_count} classical formulation sources, and landmark patent revocation precedents (e.g. CSIR turmeric patent revocation)."
+            if category == "classical_generic"
+            else f"Prior art exposure from {research_count} papers and {tk_count} TK sources."
+        )
+
         dimensions = [
             RiskDimension(
                 dimension=RiskDimensionType.NOVELTY_RISK,
                 level=_score_to_level(novelty_score),
                 score=round(novelty_score, 3),
-                reasoning=reasoning_map.get("NOVELTY", f"Novelty risk based on {patent_count} patent matches with max {max_patent_overlap:.0%} overlap."),
+                reasoning=reasoning_map.get("NOVELTY", default_novelty),
                 supporting_evidence=novelty_evidence,
             ),
             RiskDimension(
                 dimension=RiskDimensionType.TK_OVERLAP,
                 level=_score_to_level(tk_score),
                 score=round(tk_score, 3),
-                reasoning=reasoning_map.get("TK_OVERLAP", f"TK overlap based on {tk_count} classical source matches with max {max_tk_overlap:.0%} overlap."),
+                reasoning=reasoning_map.get("TK_OVERLAP", default_tk),
                 supporting_evidence=tk_evidence,
             ),
             RiskDimension(
@@ -337,14 +367,14 @@ class RiskAssessor:
                 dimension=RiskDimensionType.ABS_COMPLIANCE,
                 level=_score_to_level(abs_score),
                 score=round(abs_score, 3),
-                reasoning=reasoning_map.get("ABS", f"ABS compliance risk for '{category}' category with biological resource usage."),
+                reasoning=reasoning_map.get("ABS", default_abs),
                 supporting_evidence=abs_evidence,
             ),
             RiskDimension(
                 dimension=RiskDimensionType.PRIOR_ART_EXPOSURE,
                 level=_score_to_level(prior_score),
                 score=round(prior_score, 3),
-                reasoning=reasoning_map.get("PRIOR_ART", f"Prior art exposure from {research_count} papers and {tk_count} TK sources."),
+                reasoning=reasoning_map.get("PRIOR_ART", default_prior),
                 supporting_evidence=prior_evidence,
             ),
         ]
