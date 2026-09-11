@@ -39,9 +39,18 @@ class Settings(BaseSettings):
     generation_presence_penalty: float = 0.0
     generation_frequency_penalty: float = 0.0
 
+    # Investigation Mode — External Search APIs
+    serpapi_key: Optional[str] = None
+    semantic_scholar_timeout: float = 10.0
+    investigation_llm_timeout: float = 45.0
+    max_evidence_per_source: int = 10
+
     # File Paths
     tree_config_path: str = "config/decision_tree.json"
     categories_config_path: str = "config/formulation_categories_seed.json"
+    seed_patents_path: str = "config/seed_patents.json"
+    seed_formulations_path: str = "config/seed_formulations.json"
+    ingredient_synonyms_path: str = "config/ingredient_synonyms.json"
 
     # Environment
     app_env: str = "development"

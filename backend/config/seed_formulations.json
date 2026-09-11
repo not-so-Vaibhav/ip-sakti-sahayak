@@ -1,0 +1,152 @@
+[
+  {
+    "name": "Triphala",
+    "classical_text": "Charaka Samhita, Sushruta Samhita",
+    "ingredients": ["haritaki", "bibhitaki", "amalaki"],
+    "botanical_names": ["terminalia chebula", "terminalia bellirica", "emblica officinalis"],
+    "ratios": ["1:1:1"],
+    "processes": ["churna (powdering)", "decoction"],
+    "intended_uses": ["digestion", "detoxification", "rejuvenation", "eye care"],
+    "tkdl_classification": "ASU/AY"
+  },
+  {
+    "name": "Chyawanprash",
+    "classical_text": "Charaka Samhita, Chikitsa Sthana, Ch. 1",
+    "ingredients": ["amalaki", "pippali", "ashwagandha", "shatavari", "guduchi", "bala", "ghee", "sesame oil", "honey", "sugar"],
+    "botanical_names": ["emblica officinalis", "piper longum", "withania somnifera", "asparagus racemosus", "tinospora cordifolia", "sida cordifolia"],
+    "ratios": ["as per classical text"],
+    "processes": ["avaleha preparation", "decoction", "slow cooking"],
+    "intended_uses": ["immunity", "rejuvenation", "rasayana", "vitality"],
+    "tkdl_classification": "ASU/AY"
+  },
+  {
+    "name": "Mahanarayan Taila",
+    "classical_text": "Bhaishajya Ratnavali",
+    "ingredients": ["shatavari", "ashwagandha", "bala", "rasna", "devdaru", "sesame oil", "goat milk"],
+    "botanical_names": ["asparagus racemosus", "withania somnifera", "sida cordifolia", "pluchea lanceolata", "cedrus deodara"],
+    "ratios": ["as per classical text"],
+    "processes": ["taila paka (oil processing)", "decoction"],
+    "intended_uses": ["joint pain", "arthritis", "muscle pain", "vata disorders"],
+    "tkdl_classification": "ASU/AY"
+  },
+  {
+    "name": "Ashwagandha Churna",
+    "classical_text": "Charaka Samhita, Bhavaprakasha Nighantu",
+    "ingredients": ["ashwagandha"],
+    "botanical_names": ["withania somnifera"],
+    "ratios": [],
+    "processes": ["churna (powdering)", "drying"],
+    "intended_uses": ["stress", "vitality", "strength", "adaptogenic", "rasayana"],
+    "tkdl_classification": "ASU/AY"
+  },
+  {
+    "name": "Dashamoola Kwath",
+    "classical_text": "Charaka Samhita, Sushruta Samhita",
+    "ingredients": ["bilva", "agnimantha", "shyonaka", "patala", "gambhari", "brihati", "kantakari", "gokshura", "shalaparni", "prishnaparni"],
+    "botanical_names": ["aegle marmelos", "premna mucronata", "oroxylum indicum", "stereospermum suaveolens", "gmelina arborea", "solanum indicum", "solanum xanthocarpum", "tribulus terrestris", "desmodium gangeticum", "uraria picta"],
+    "ratios": ["equal parts"],
+    "processes": ["kwath (decoction)", "boiling"],
+    "intended_uses": ["inflammation", "fever", "pain relief", "vata disorders"],
+    "tkdl_classification": "ASU/AY"
+  },
+  {
+    "name": "Kumkumadi Taila",
+    "classical_text": "Ashtanga Hridaya, Uttarasthana",
+    "ingredients": ["kumkuma (saffron)", "chandana (sandalwood)", "padmaka", "ushira", "laksha", "manjistha", "yashtimadhu", "sesame oil"],
+    "botanical_names": ["crocus sativus", "santalum album", "prunus cerasoides", "vetiveria zizanioides", "laccifer lacca", "rubia cordifolia", "glycyrrhiza glabra"],
+    "ratios": ["as per classical text"],
+    "processes": ["taila paka (oil processing)"],
+    "intended_uses": ["skin brightening", "complexion", "anti-aging", "skin care"],
+    "tkdl_classification": "ASU/AY"
+  },
+  {
+    "name": "Brahmi Vati",
+    "classical_text": "Bhavaprakasha, Rasa Tantra Sara",
+    "ingredients": ["brahmi", "shankhapushpi", "vacha", "jatamansi", "gold bhasma"],
+    "botanical_names": ["bacopa monnieri", "convolvulus pluricaulis", "acorus calamus", "nardostachys jatamansi"],
+    "ratios": ["as per classical text"],
+    "processes": ["vati preparation (tablet)", "bhavana (trituration)"],
+    "intended_uses": ["memory", "cognitive function", "mental clarity", "medhya"],
+    "tkdl_classification": "ASU/AY"
+  },
+  {
+    "name": "Hingvastak Churna",
+    "classical_text": "Sharangdhara Samhita",
+    "ingredients": ["hingu (asafoetida)", "saunth (ginger)", "marich (black pepper)", "pippali", "ajwain", "saindhava lavana", "cumin", "black cumin"],
+    "botanical_names": ["ferula assa-foetida", "zingiber officinale", "piper nigrum", "piper longum", "trachyspermum ammi"],
+    "ratios": ["equal parts of herbs, double part hingu"],
+    "processes": ["churna (powdering)", "mixing"],
+    "intended_uses": ["digestion", "bloating", "flatulence", "appetite"],
+    "tkdl_classification": "ASU/AY"
+  },
+  {
+    "name": "Chandraprabha Vati",
+    "classical_text": "Sharangdhara Samhita",
+    "ingredients": ["chandraprabha", "shilajit", "guggulu", "triphala", "trikatu", "musta", "vacha", "danti", "loha bhasma", "iron"],
+    "botanical_names": ["commiphora wightii", "acorus calamus", "cyperus rotundus", "baliospermum montanum"],
+    "ratios": ["as per classical text"],
+    "processes": ["vati preparation", "bhavana"],
+    "intended_uses": ["urinary disorders", "diabetes", "kidney stones", "general debility"],
+    "tkdl_classification": "ASU/AY"
+  },
+  {
+    "name": "Sitopaladi Churna",
+    "classical_text": "Sharangdhara Samhita",
+    "ingredients": ["mishri (sugar candy)", "vanshalochan (bamboo manna)", "pippali", "ela (cardamom)", "dalchini (cinnamon)"],
+    "botanical_names": ["saccharum officinarum", "bambusa arundinacea", "piper longum", "elettaria cardamomum", "cinnamomum zeylanicum"],
+    "ratios": ["16:8:4:2:1"],
+    "processes": ["churna (powdering)", "sequential mixing"],
+    "intended_uses": ["cough", "cold", "respiratory disorders", "fever"],
+    "tkdl_classification": "ASU/AY"
+  },
+  {
+    "name": "Trikatu Churna",
+    "classical_text": "Charaka Samhita",
+    "ingredients": ["saunth (dry ginger)", "marich (black pepper)", "pippali (long pepper)"],
+    "botanical_names": ["zingiber officinale", "piper nigrum", "piper longum"],
+    "ratios": ["1:1:1"],
+    "processes": ["churna (powdering)"],
+    "intended_uses": ["digestion", "metabolism", "bioenhancer", "kapha disorders"],
+    "tkdl_classification": "ASU/AY"
+  },
+  {
+    "name": "Arjunarishta",
+    "classical_text": "Bhaishajya Ratnavali",
+    "ingredients": ["arjuna bark", "draksha (raisins)", "mahua flowers", "dhataki flowers"],
+    "botanical_names": ["terminalia arjuna", "vitis vinifera", "madhuca longifolia", "woodfordia fruticosa"],
+    "ratios": ["as per classical text"],
+    "processes": ["arishta preparation (fermentation)", "sandhana kalpana"],
+    "intended_uses": ["heart health", "cardiac tonic", "cardiovascular"],
+    "tkdl_classification": "ASU/AY"
+  },
+  {
+    "name": "Yashtimadhu (Mulethi) Ghrita",
+    "classical_text": "Ashtanga Hridaya",
+    "ingredients": ["yashtimadhu (liquorice)", "cow ghee", "milk"],
+    "botanical_names": ["glycyrrhiza glabra"],
+    "ratios": ["as per classical text"],
+    "processes": ["ghrita paka (ghee processing)"],
+    "intended_uses": ["gastric ulcer", "acidity", "respiratory health"],
+    "tkdl_classification": "ASU/AY"
+  },
+  {
+    "name": "Haridra Khand",
+    "classical_text": "Bhavaprakasha",
+    "ingredients": ["haridra (turmeric)", "ghee", "milk", "sugar"],
+    "botanical_names": ["curcuma longa"],
+    "ratios": ["as per classical text"],
+    "processes": ["khand preparation", "cooking with ghee"],
+    "intended_uses": ["allergy", "skin disorders", "urticaria", "blood purification"],
+    "tkdl_classification": "ASU/AY"
+  },
+  {
+    "name": "Guduchi Satva",
+    "classical_text": "Bhavaprakasha Nighantu",
+    "ingredients": ["guduchi (giloy)"],
+    "botanical_names": ["tinospora cordifolia"],
+    "ratios": [],
+    "processes": ["satva extraction (starch extraction)", "crushing", "decantation"],
+    "intended_uses": ["fever", "immunity", "liver protection", "general debility"],
+    "tkdl_classification": "ASU/AY"
+  }
+]

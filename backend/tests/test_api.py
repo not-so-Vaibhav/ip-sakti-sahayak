@@ -80,3 +80,21 @@ def test_reload_tree():
     assert response.status_code == 200
     data = response.json()
     assert data["status"] == "success"
+
+
+def test_investigate_endpoint():
+    response = client.post(
+        "/investigate",
+        json={
+            "formulation_description": "Turmeric and Ginger extract 2:1 for inflammation",
+            "formulation_category": "patent_or_proprietary",
+            "jurisdiction": "india",
+            "language": "en",
+        },
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert "case" in data
+    assert data["case"]["status"] == "complete"
+    assert len(data["phases_completed"]) == 5
+

@@ -9,12 +9,13 @@ import { ChatInterface } from "@/components/ChatInterface";
 import { RegimeComparator } from "@/components/RegimeComparator";
 import { CitationViewer } from "@/components/CitationViewer";
 import { HumanFacilitatorModal } from "@/components/HumanFacilitatorModal";
+import { InvestigationDashboard } from "@/components/InvestigationDashboard";
 import { Leaf } from "lucide-react";
 
 export default function Home() {
   const [language, setLanguage] = useState<"en" | "hi">("en");
   const [jurisdiction, setJurisdiction] = useState<"india" | "international">("india");
-  const [activeTab, setActiveTab] = useState<"landing" | "chat" | "classifier" | "comparator">("landing");
+  const [activeTab, setActiveTab] = useState<"landing" | "chat" | "classifier" | "comparator" | "investigate">("landing");
   const [activeCategory, setActiveCategory] = useState<FormulationCategory>("classical_generic");
   const [initialChatQuery, setInitialChatQuery] = useState<string | undefined>(undefined);
   
@@ -51,7 +52,7 @@ export default function Home() {
   };
 
   const handleNavigateToTab = (
-    tab: "chat" | "classifier" | "comparator",
+    tab: "chat" | "classifier" | "comparator" | "investigate",
     query?: string,
     category?: FormulationCategory
   ) => {
@@ -108,6 +109,16 @@ export default function Home() {
 
         {activeTab === "comparator" && (
           <RegimeComparator language={language} />
+        )}
+
+        {activeTab === "investigate" && (
+          <InvestigationDashboard
+            language={language}
+            jurisdiction={jurisdiction}
+            activeCategory={activeCategory}
+            onOpenCitation={handleOpenCitation}
+            onOpenFacilitator={handleOpenFacilitator}
+          />
         )}
       </main>
 

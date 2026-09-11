@@ -21,7 +21,7 @@ import { FormulationCategory } from "@/lib/api";
 interface LandingHeroProps {
   language: "en" | "hi";
   onNavigateToTab: (
-    tab: "chat" | "classifier" | "comparator",
+    tab: "chat" | "classifier" | "comparator" | "investigate",
     initialQuery?: string,
     category?: FormulationCategory
   ) => void;
@@ -257,6 +257,17 @@ export const LandingHero: React.FC<LandingHeroProps> = ({
         : "Compare Indian statutory provisions with TRIPS, Nagoya Protocol, and global standards to plan international IP filings safely.",
       cta: isHi ? "तुलना देखें" : "Compare Regimes",
     },
+    {
+      id: "investigate",
+      tab: "investigate" as const,
+      icon: ShieldCheck,
+      title: isHi ? "बौद्धिक संपदा जांच इंजन" : "IP Investigation Engine",
+      tag: isHi ? "पेटेंट, शोध व TKDL तुलना" : "Prior Art & Risk Dossier",
+      desc: isHi
+        ? "अपने नुस्खे का विवरण दें और पेटेंट, शोध पत्रों, TKDL व नियमों के विरुद्ध स्वतः जोखिम व तुलनात्मक रिपोर्ट पाएं।"
+        : "Extract structured formulation elements, cross-search global patents, research, and traditional knowledge, and generate an evidence-backed dossier.",
+      cta: isHi ? "जांच शुरू करें" : "Launch Investigation",
+    },
   ];
 
   return (
@@ -349,6 +360,14 @@ export const LandingHero: React.FC<LandingHeroProps> = ({
               >
                 <Scale className="w-4 h-4 text-[#7FB53D]" />
                 <span>{isHi ? "कानूनी तुलना" : "Compare Regimes"}</span>
+              </button>
+
+              <button
+                onClick={() => onNavigateToTab("investigate")}
+                className="inline-flex items-center gap-2 px-5 py-3.5 rounded-full bg-[#1E2D24] hover:bg-[#2D5A27] text-white font-bold text-sm shadow-md transition-all hover:scale-[1.03] active:scale-[0.98] cursor-pointer"
+              >
+                <ShieldCheck className="w-4 h-4 text-[#7FB53D]" />
+                <span>{isHi ? "IP जांच इंजन" : "IP Investigation"}</span>
               </button>
             </div>
 
@@ -521,7 +540,7 @@ export const LandingHero: React.FC<LandingHeroProps> = ({
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-7">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-7">
           {tools.map((tool) => {
             const Icon = tool.icon;
             return (

@@ -88,6 +88,97 @@ export interface QueryResponse {
   generation_attempts: number;
 }
 
+// --- Investigation Types ---
+
+export interface FormulationElement {
+  name: string;
+  element_type: string;
+  value?: string;
+  classical_text_ref?: string;
+}
+
+export interface StructuredFormulation {
+  raw_input: string;
+  ingredients: FormulationElement[];
+  ratios: FormulationElement[];
+  processes: FormulationElement[];
+  dosage_forms: FormulationElement[];
+  intended_uses: FormulationElement[];
+}
+
+export interface EvidenceSource {
+  source_id: string;
+  source_type: "patent" | "research_paper" | "tk_source" | "formulation" | "regulation";
+  title: string;
+  identifier?: string;
+  url?: string;
+  publication_date?: string;
+  retrieved_at: string;
+  relevant_text: string;
+  extracted_elements: FormulationElement[];
+  relevance_score: number;
+  jurisdiction?: string;
+}
+
+export interface ElementComparison {
+  element_name: string;
+  element_type: string;
+  user_has: boolean;
+  matches: Record<string, boolean>;
+}
+
+export interface ComparisonMatrix {
+  user_formulation: StructuredFormulation;
+  evidence_sources: EvidenceSource[];
+  comparisons: ElementComparison[];
+  overlap_scores: Record<string, number>;
+}
+
+export interface RiskDimension {
+  dimension: string;
+  level: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+  score: number;
+  reasoning: string;
+  supporting_evidence: string[];
+}
+
+export interface RiskAssessment {
+  dimensions: RiskDimension[];
+  overall_risk: string;
+  overall_confidence: number;
+  recommended_actions: string[];
+  uncertainties: string[];
+}
+
+export interface InvestigationCase {
+  case_id: string;
+  created_at: string;
+  language: string;
+  jurisdiction: string;
+  status: string;
+  classification_category?: string;
+  formulation?: StructuredFormulation;
+  evidence_sources: EvidenceSource[];
+  comparison_matrix?: ComparisonMatrix;
+  risk_assessment?: RiskAssessment;
+  regulatory_analysis?: string;
+  report_markdown?: string;
+}
+
+export interface InvestigateRequest {
+  formulation_description: string;
+  formulation_category: FormulationCategory;
+  jurisdiction: "india" | "international";
+  language: "en" | "hi";
+  session_id?: string;
+}
+
+export interface InvestigateResponse {
+  case: InvestigationCase;
+  phases_completed: string[];
+  current_phase: string;
+}
+
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
 
 export const api = {
@@ -200,4 +291,18 @@ export const api = {
     }
     return await res.json();
   },
+
+  async startInvestigation(request: InvestigateRequest): Promise<InvestigateResponse> {
+    const res = await fetch(`${BACKEND_URL}/investigate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(request),
+    });
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      throw new Error(errData.detail || `Investigation failed (${res.status})`);
+    }
+    return await res.json();
+  },
 };
+

@@ -2,15 +2,15 @@
 
 import React from "react";
 import { translations } from "@/lib/translations";
-import { Globe, Scale, Sparkles, MessageSquare, Leaf, Home, ArrowRight } from "lucide-react";
+import { Globe, Scale, Sparkles, MessageSquare, Leaf, Home, ArrowRight, Search } from "lucide-react";
 
 interface HeaderProps {
   language: "en" | "hi";
   setLanguage: (lang: "en" | "hi") => void;
   jurisdiction: "india" | "international";
   setJurisdiction: (jur: "india" | "international") => void;
-  activeTab: "landing" | "chat" | "classifier" | "comparator";
-  setActiveTab: (tab: "landing" | "chat" | "classifier" | "comparator") => void;
+  activeTab: "landing" | "chat" | "classifier" | "comparator" | "investigate";
+  setActiveTab: (tab: "landing" | "chat" | "classifier" | "comparator" | "investigate") => void;
   backendOnline: boolean;
 }
 
@@ -103,6 +103,17 @@ export const Header: React.FC<HeaderProps> = ({
               >
                 <Scale className="w-3.5 h-3.5 shrink-0" />
                 <span>{t.nav.comparator}</span>
+              </button>
+              <button
+                onClick={() => setActiveTab("investigate")}
+                className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+                  activeTab === "investigate"
+                    ? "bg-[#7FB53D] text-white shadow-xs"
+                    : "text-[#4B6354] hover:text-[#1E2D24] hover:bg-[#DEEED9]/60"
+                }`}
+              >
+                <Search className="w-3.5 h-3.5 shrink-0" />
+                <span>{isHi ? "IP जांच" : "IP Investigation"}</span>
               </button>
             </nav>
           ) : (

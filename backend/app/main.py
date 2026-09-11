@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from backend.app.api.routes.classify import router as classify_router
 from backend.app.api.routes.health import router as health_router
+from backend.app.api.routes.investigate import router as investigate_router
 from backend.app.api.routes.query import router as query_router
 from backend.app.config import settings
 
@@ -51,6 +52,7 @@ app.add_middleware(
 # Include API routers
 app.include_router(classify_router)
 app.include_router(health_router)
+app.include_router(investigate_router)
 app.include_router(query_router)
 
 
@@ -63,6 +65,7 @@ async def root():
         "endpoints": {
             "classify": "/classify",
             "query": "/query",
+            "investigate": "/investigate",
             "health": "/health",
         },
     }

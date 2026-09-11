@@ -119,6 +119,7 @@ export const translations = {
       chat: "Regulatory Guidance",
       classifier: "Formulation Classifier",
       comparator: "Regime Comparator",
+      investigate: "IP Investigation",
     },
     jurisdiction: {
       label: "Jurisdiction",
@@ -207,6 +208,7 @@ export const translations = {
       chat: "नियामक मार्गदर्शन",
       classifier: "दवा वर्गीकरण विज़ार्ड",
       comparator: "नियामक तुलना (Regime Comparator)",
+      investigate: "IP जांच (Investigation)",
     },
     jurisdiction: {
       label: "अधिकार क्षेत्र (Jurisdiction)",

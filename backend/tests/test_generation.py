@@ -30,7 +30,7 @@ def test_citation_validation_success():
     allowed = {"chunk-1", "chunk-2"}
 
     text = "Section 3(p) prohibits traditional knowledge [cite:chunk-1]. Rule 122E requires clinical markers [cite:chunk-2]."
-    is_valid, valid_ids, invalid_ids = generator.validate_citations(text, allowed)
+    is_valid, valid_ids, invalid_ids, _ = generator.validate_citations(text, allowed)
 
     assert is_valid is True
     assert valid_ids == ["chunk-1", "chunk-2"]
@@ -43,7 +43,7 @@ def test_citation_validation_relaxed_syntax_variants():
     allowed = {"chunk-1", "chunk-2", "chunk-3"}
 
     text = "Synergism must be demonstrated (cite:chunk-1). BDA requires prior approval cite:chunk-2 and [cite:chunk-3]."
-    is_valid, valid_ids, invalid_ids = generator.validate_citations(text, allowed)
+    is_valid, valid_ids, invalid_ids, _ = generator.validate_citations(text, allowed)
 
     assert is_valid is True
     assert valid_ids == ["chunk-1", "chunk-2", "chunk-3"]
@@ -59,7 +59,7 @@ def test_citation_validation_partial_hallucination_rejects_whole_answer():
     allowed = {"chunk-1"}
 
     text = "Valid claim [cite:chunk-1]. Hallucinated claim [cite:chunk-99]."
-    is_valid, valid_ids, invalid_ids = generator.validate_citations(text, allowed)
+    is_valid, valid_ids, invalid_ids, _ = generator.validate_citations(text, allowed)
 
     assert is_valid is False
     assert valid_ids == ["chunk-1"]
@@ -71,7 +71,7 @@ def test_citation_validation_missing_citations_rejects():
     generator = CitationConstrainedGenerator()
     allowed = {"chunk-1"}
     text = "You cannot patent this formulation because of general knowledge principles."
-    is_valid, valid_ids, invalid_ids = generator.validate_citations(text, allowed)
+    is_valid, valid_ids, invalid_ids, _ = generator.validate_citations(text, allowed)
 
     assert is_valid is False
     assert len(valid_ids) == 0
