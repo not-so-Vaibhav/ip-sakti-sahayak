@@ -28,7 +28,7 @@ REGULATORY_COMPLEXITY_MAP: Dict[str, Tuple[RiskLevel, float, str]] = {
     "classical_generic": (
         RiskLevel.LOW,
         0.2,
-        "Classical generic formulations have minimal regulatory complexity — licensed under First Schedule texts with no new drug application required.",
+        "Classical generic formulations listed in First Schedule authoritative texts require proof of classical citation under Rule 158B of the Drugs & Cosmetics Rules, 1945. They qualify for Form 25D manufacturing licenses without requiring new safety or clinical trial dossiers.",
     ),
     "patent_or_proprietary": (
         RiskLevel.MEDIUM,
@@ -64,7 +64,7 @@ Given the following investigation data, provide concise reasoning (2-3 sentences
 CRITICAL LEGAL CONTEXT & DIRECTIONALITY (DO NOT INVERT):
 - NOVELTY RISK: A HIGH or CRITICAL Novelty Risk means the formulation LACKS novelty because prior art patents or traditional knowledge anticipations destroy novelty under Sections 3(p) and 3(e) of the Indian Patents Act, 1970. Never state that patent matches indicate "a high likelihood of novelty" or are an "indicator of novelty" — existing patent matches and prior art directly PREVENT, REDUCE, or DESTROY novelty.
 - TK OVERLAP: Measures direct anticipation by classical texts (Charaka Samhita, Sushruta Samhita, TKDL) triggering the Section 3(p) statutory non-patentability bar.
-- REGULATORY COMPLEXITY: Measures licensing and clinical trial burdens under the Drugs & Cosmetics Act, 1940. Classical Ayurvedic formulations have LOW regulatory complexity because they are exempt from clinical trials under Rule 158B (Form 25D manufacturing license), whereas patentability exclusions are captured separately under Novelty Risk.
+- REGULATORY COMPLEXITY: Measures manufacturing licensing and clinical hurdles under the Drugs & Cosmetics Rules, 1945. Classical Ayurvedic formulations listed in First Schedule authoritative texts have LOW regulatory complexity because under Rule 158B (Form 25D license), they require classical textual citations rather than new clinical trials or safety dossiers.
 - ABS COMPLIANCE: Measures access and benefit sharing obligations under Biological Diversity Act, 2002 Section 6 (mandatory NBA Form III approval before patent grant).
 - PRIOR ART EXPOSURE: Measures density of published scientific papers and classical documentation in the public domain.
 
@@ -362,21 +362,42 @@ class RiskAssessor:
                         f"against novelty and inventive step under Section 2(1)(j) of the Patents Act, 1970."
                     )
 
-        # Ensure regulatory complexity clearly distinguishes D&C manufacturing clearance from Patents Act bars
+        # Ensure regulatory complexity strictly reflects Rule 158B without cross-contaminating Patents Act
         reg_text = reasoning_map.get("REGULATORY", "")
-        if category == "classical_generic" and ("patent" in reg_text.lower() or not reg_text):
+        if category == "classical_generic" and ("patent" in reg_text.lower() or not reg_text or "novelty" in reg_text.lower()):
             reasoning_map["REGULATORY"] = (
-                "Regulatory complexity is LOW because classical Ayurvedic formulations listed in First Schedule authoritative texts "
-                "are exempt from safety and clinical trials under Rule 158B of the Drugs & Cosmetics Act, 1940 (Form 25D license). "
-                "Statutory patentability bars (Patents Act §3(p)) are evaluated separately under Novelty Risk."
+                "Regulatory complexity is LOW under Rule 158B of the Drugs & Cosmetics Rules, 1945. "
+                "Formulations conforming to First Schedule authoritative Ayurvedic treatises qualify "
+                "for Form 25D manufacturing licenses based on classical textual citations, without "
+                "requiring new safety or clinical trial dossiers."
             )
+
+        # Segregate regulatory citations: D&C Act -> Regulatory, Patents Act -> Novelty
+        dca_sources = [
+            s.source_id for s in evidence
+            if s.source_type == EvidenceSourceType.REGULATION
+            and any(term in (s.title or "").lower() for term in ["drugs", "cosmetics", "d&c", "158b", "schedule", "ayush"])
+        ]
+        if not dca_sources:
+            dca_sources = [
+                s.source_id for s in evidence
+                if s.source_type == EvidenceSourceType.REGULATION
+                and not any(term in (s.title or "").lower() for term in ["patent", "biodiversity"])
+            ]
+
+        patents_act_sources = [
+            s.source_id for s in evidence
+            if s.source_type == EvidenceSourceType.REGULATION
+            and "patent" in (s.title or "").lower()
+        ]
+        novelty_evidence = list(dict.fromkeys(novelty_evidence + patents_act_sources))
 
         # Build dimensions
         default_novelty = (
             "Section 3(p) of the Patents Act, 1970 strictly excludes traditional knowledge from patentability. Section 3(e) prohibits combinations of known herbal ingredients absent empirical demonstration of synergistic therapeutic bio-enhancement."
             if category == "classical_generic"
             else f"Novelty risk based on {patent_count} patent matches with max {max_patent_overlap:.0%} overlap."
-        )
+        )                                                
         default_tk = (
             f"Direct traditional knowledge overlap detected ({max_tk_overlap:.0%}) with classical Ayurvedic treatises recognized under the First Schedule of the Drugs & Cosmetics Act, 1940 (e.g., Charaka Samhita, Sushruta Samhita) and the TKDL prior art corpus."
             if category == "classical_generic"
@@ -454,7 +475,7 @@ class RiskAssessor:
                 confidence_score=reg_conf,
                 confidence_level="HIGH" if reg_conf >= 0.80 else "MEDIUM",
                 reasoning=reasoning_map.get("REGULATORY", reg_reason),
-                supporting_evidence=[],
+                supporting_evidence=dca_sources,
             ),
             RiskDimension(
                 dimension=RiskDimensionType.ABS_COMPLIANCE,

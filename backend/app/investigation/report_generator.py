@@ -301,9 +301,21 @@ class ReportGenerator:
             cb = getattr(case.risk_assessment, "confidence_breakdown", {})
             if cb:
                 sections.append("**Confidence Factor Breakdown:**")
-                for factor, score in cb.items():
-                    readable = factor.replace("_", " ").title()
-                    sections.append(f"- **{readable}:** {score:.0%}")
+                fixed_schema = [
+                    ("evidence_corroboration", "Evidence Corroboration", ["cross_source_corroboration", "evidence_density"]),
+                    ("element_concordance", "Element Concordance", ["concordance_strength"]),
+                    ("retrieval_relevance", "Retrieval Relevance", ["prior_art_depth"]),
+                    ("statutory_grounding", "Statutory Grounding", ["statutory_determinism"]),
+                ]
+                for primary_key, label, fallbacks in fixed_schema:
+                    val = cb.get(primary_key)
+                    if val is None:
+                        for fb in fallbacks:
+                            if fb in cb:
+                                val = cb[fb]
+                                break
+                    if val is not None:
+                        sections.append(f"- **{label}:** {val:.0%}")
                 sections.append("")
 
             if case.risk_assessment.uncertainties:
