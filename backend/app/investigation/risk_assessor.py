@@ -65,7 +65,7 @@ CRITICAL LEGAL CONTEXT & DIRECTIONALITY (DO NOT INVERT):
 - NOVELTY RISK: A HIGH or CRITICAL Novelty Risk means the formulation LACKS novelty because prior art patents or traditional knowledge anticipations destroy novelty under Sections 3(p) and 3(e) of the Indian Patents Act, 1970. Never state that patent matches indicate "a high likelihood of novelty" or are an "indicator of novelty" — existing patent matches and prior art directly PREVENT, REDUCE, or DESTROY novelty.
 - TK OVERLAP: Measures direct anticipation by classical texts (Charaka Samhita, Sushruta Samhita, TKDL) triggering the Section 3(p) statutory non-patentability bar.
 - REGULATORY COMPLEXITY: Measures manufacturing licensing and clinical hurdles under the Drugs & Cosmetics Rules, 1945. Classical Ayurvedic formulations listed in First Schedule authoritative texts have LOW regulatory complexity because under Rule 158B (Form 25D license), they require classical textual citations rather than new clinical trials or safety dossiers.
-- ABS COMPLIANCE: Measures access and benefit sharing obligations under Biological Diversity Act, 2002 Section 6 (mandatory NBA Form III approval before patent grant).
+- ABS COMPLIANCE: Measures access and benefit sharing obligations under the Biological Diversity Act, 2002 and Biological Diversity (Amendment) Act, 2023. For classical generic formulations utilizing common herbs (such as turmeric and neem), ABS risk is LOW because cultivated herbs are exempt as normally traded commodities under Section 40, and domestic codified ASU manufacturing is statutorily exempt from SBB prior approval. Never state that a requirement 'further reduces regulatory complexity' or hallucinate 'National Biosafety Form' — NBA stands for National Biodiversity Authority.
 - PRIOR ART EXPOSURE: Measures density of published scientific papers and classical documentation in the public domain.
 
 FORMULATION CATEGORY: {category}
@@ -372,6 +372,28 @@ class RiskAssessor:
                 "requiring new safety or clinical trial dossiers."
             )
 
+        # Guardrail against contradictory or hallucinatory ABS reasoning
+        # (Where LLMs hallucinate 'National Biosafety Form' or contradict low risk with 'adds complexity, further reducing complexity')
+        abs_text = reasoning_map.get("ABS", "")
+        abs_contradictions = [
+            "reducing the regulatory complexity",
+            "reduces the regulatory complexity",
+            "further reducing",
+            "national biosafety",
+            "biosafety form",
+            "adds an additional layer of complexity and compliance, further reducing",
+            "adds an additional layer",
+        ]
+        if abs_score <= 0.40:
+            if not abs_text or any(phrase in abs_text.lower() for phrase in abs_contradictions) or "high risk" in abs_text.lower():
+                logger.info("ABS reasoning contradiction/hallucination detected; applying statutory BDA exemption reasoning.")
+                reasoning_map["ABS"] = (
+                    "ABS compliance risk is LOW because commonly cultivated herbs (such as turmeric and neem) are "
+                    "exempt as normally traded commodities under Section 40 of the Biological Diversity Act, 2002. "
+                    "Furthermore, under the Biological Diversity (Amendment) Act, 2023, codified traditional Ayurvedic "
+                    "preparations manufactured for domestic use are exempt from prior SBB intimation and NBA Form III approval."
+                )
+
         # Segregate regulatory citations: D&C Act -> Regulatory, Patents Act -> Novelty
         dca_sources = [
             s.source_id for s in evidence
@@ -404,7 +426,13 @@ class RiskAssessor:
             else f"TK overlap based on {tk_count} classical source matches with max {max_tk_overlap:.0%} overlap."
         )
         default_abs = (
-            "Biological Diversity Act, 2002 Section 6 mandates prior approval from the National Biodiversity Authority (NBA Form III) before applying for any IP. Domestic manufacturers require State Biodiversity Board (SBB) intimation."
+            "ABS compliance risk is LOW because commonly cultivated herbs (such as turmeric and neem) are "
+            "exempt as normally traded commodities under Section 40 of the Biological Diversity Act, 2002. "
+            "Furthermore, under the Biological Diversity (Amendment) Act, 2023, codified traditional Ayurvedic "
+            "preparations manufactured for domestic use are exempt from prior SBB intimation and NBA Form III approval."
+            if abs_score <= 0.40
+            else "Biological Diversity Act, 2002 Section 6 mandates prior approval from the National Biodiversity Authority "
+            "(NBA Form III) before commercial patent grant, with fair and equitable benefit sharing obligations."
         )
         default_prior = (
             f"Significant prior art exposure with {research_count} scientific papers, {tk_count} classical formulation sources, and landmark patent revocation precedents (e.g. CSIR turmeric patent revocation)."

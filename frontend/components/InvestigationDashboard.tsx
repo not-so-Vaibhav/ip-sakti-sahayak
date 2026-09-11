@@ -567,6 +567,12 @@ export const InvestigationDashboard: React.FC<InvestigationDashboardProps> = ({
                         </div>
                       )}
 
+                      {dim.dimension === "abs_compliance" && dim.level === "LOW" && (
+                        <div className="mt-2 pt-1.5 border-t border-black/10 text-[9px] opacity-90 font-medium text-[#2D5A27]">
+                          🌿 {isHi ? "जैविक विविधता अधिनियम धारा 40 एवं 2023 संशोधन छूट" : "BDA 2002 Sec 40 & 2023 Amendment ASU Exemption"}
+                        </div>
+                      )}
+
                       {dim.dimension === "novelty_risk" && dim.level === "CRITICAL" && (
                         <div className="mt-2 pt-1.5 border-t border-black/10 text-[9px] opacity-90 font-medium text-red-800">
                           ⚖️ {isHi ? "पेटेंट अधिनियम, 1970 · धारा 3(p) एवं 3(e) गैर-पेटेंट योग्यता बाधा" : "Patents Act, 1970 · Section 3(p) & 3(e) Non-Patentability Bar"}
