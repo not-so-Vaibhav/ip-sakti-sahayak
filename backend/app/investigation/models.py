@@ -120,10 +120,12 @@ class ComparisonMatrix(BaseModel):
 # ---------------------------------------------------------------------------
 
 class RiskDimension(BaseModel):
-    """Single risk axis with level, reasoning, and supporting evidence."""
+    """Single risk axis with level, reasoning, confidence, and supporting evidence."""
     dimension: RiskDimensionType
     level: RiskLevel = RiskLevel.MEDIUM
     score: float = 0.5  # 0.0-1.0
+    confidence_score: float = 0.85  # 0.0-1.0 confidence in this dimension assessment
+    confidence_level: str = "HIGH"  # HIGH, MEDIUM, LOW
     reasoning: str = ""
     supporting_evidence: List[str] = Field(default_factory=list)  # List of source_ids
 
@@ -133,6 +135,8 @@ class RiskAssessment(BaseModel):
     dimensions: List[RiskDimension] = Field(default_factory=list)
     overall_risk: RiskLevel = RiskLevel.MEDIUM
     overall_confidence: float = 0.0
+    overall_confidence_level: str = "HIGH"
+    confidence_breakdown: Dict[str, float] = Field(default_factory=dict)
     recommended_actions: List[str] = Field(default_factory=list)
     uncertainties: List[str] = Field(default_factory=list)
 

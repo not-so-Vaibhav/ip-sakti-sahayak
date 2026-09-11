@@ -435,35 +435,63 @@ export const InvestigationDashboard: React.FC<InvestigationDashboardProps> = ({
                   </div>
                   <div className="text-right">
                     <p className="text-xs font-medium text-[#4B6354]">{isHi ? "विश्वसनीयता" : "Confidence"}</p>
-                    <p className="text-2xl font-black text-[#2D5A27]">
-                      {(investigationCase.risk_assessment.overall_confidence * 100).toFixed(0)}%
-                    </p>
+                    <div className="flex items-center justify-end gap-2">
+                      <span className="text-[11px] font-bold px-2 py-0.5 rounded bg-white/70 text-[#2D5A27] shadow-xs">
+                        {investigationCase.risk_assessment.overall_confidence_level || "HIGH"}
+                      </span>
+                      <p className="text-2xl font-black text-[#2D5A27]">
+                        {(investigationCase.risk_assessment.overall_confidence * 100).toFixed(0)}%
+                      </p>
+                    </div>
                   </div>
                 </div>
+
+                {/* Multi-factor confidence breakdown */}
+                {investigationCase.risk_assessment.confidence_breakdown && (
+                  <div className="mt-3 pt-3 border-t border-black/5 grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px]">
+                    {Object.entries(investigationCase.risk_assessment.confidence_breakdown).map(([factor, score]) => (
+                      <div key={factor} className="bg-white/70 rounded-lg px-2.5 py-1.5 border border-black/5 shadow-xs">
+                        <span className="text-[#4B6354] text-[10px] block capitalize">{factor.replace("_", " ")}</span>
+                        <span className="font-bold text-[#2D5A27] text-xs">{(score * 100).toFixed(0)}%</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Risk Dimension Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {investigationCase.risk_assessment.dimensions.map((dim) => {
                   const dimName = DIMENSION_NAMES[dim.dimension] || { en: dim.dimension, hi: dim.dimension };
+                  const confVal = dim.confidence_score !== undefined ? dim.confidence_score : 0.85;
+                  const confLvl = dim.confidence_level || (confVal >= 0.8 ? "HIGH" : "MED");
                   return (
                     <div key={dim.dimension} className={`rounded-xl border p-4 ${RISK_COLORS[dim.level] || RISK_COLORS.MEDIUM}`}>
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-xs font-bold">{isHi ? dimName.hi : dimName.en}</span>
                         <span className="text-lg font-black">{dim.level}</span>
                       </div>
-                      {/* Score bar */}
-                      <div className="w-full bg-white/50 rounded-full h-2 mb-2">
-                        <div
-                          className={`h-2 rounded-full ${
-                            dim.level === "CRITICAL" ? "bg-red-500" :
-                            dim.level === "HIGH" ? "bg-orange-500" :
-                            dim.level === "MEDIUM" ? "bg-amber-500" : "bg-emerald-500"
-                          }`}
-                          style={{ width: `${Math.min(100, dim.score * 100)}%` }}
-                        />
+
+                      {/* Score and confidence bars */}
+                      <div className="space-y-1 mb-2">
+                        <div className="flex items-center justify-between text-[10px] opacity-90 font-semibold">
+                          <span>{isHi ? "जोखिम तीव्रता" : "Risk Severity"}: {(dim.score * 100).toFixed(0)}%</span>
+                          <span className="bg-white/60 px-1.5 py-0.2 rounded text-[9px] font-bold text-[#2D5A27]">
+                            {isHi ? "विश्वास" : "Conf"}: {(confVal * 100).toFixed(0)}% ({confLvl})
+                          </span>
+                        </div>
+                        <div className="w-full bg-white/50 rounded-full h-2">
+                          <div
+                            className={`h-2 rounded-full ${
+                              dim.level === "CRITICAL" ? "bg-red-500" :
+                              dim.level === "HIGH" ? "bg-orange-500" :
+                              dim.level === "MEDIUM" ? "bg-amber-500" : "bg-emerald-500"
+                            }`}
+                            style={{ width: `${Math.min(100, dim.score * 100)}%` }}
+                          />
+                        </div>
                       </div>
-                      <p className="text-[10px] leading-relaxed opacity-80">{dim.reasoning}</p>
+                      <p className="text-[10px] leading-relaxed opacity-85">{dim.reasoning}</p>
                     </div>
                   );
                 })}

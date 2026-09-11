@@ -265,14 +265,17 @@ class ReportGenerator:
 
             # Overall risk banner
             emoji = RISK_EMOJI.get(ra.overall_risk, "⚪")
-            sections.append(f"### Overall Risk: {emoji} **{ra.overall_risk.value}** (Confidence: {ra.overall_confidence:.0%})\n")
+            conf_lvl = getattr(ra, "overall_confidence_level", "HIGH")
+            sections.append(f"### Overall Risk: {emoji} **{ra.overall_risk.value}** | Confidence: **{ra.overall_confidence:.0%} ({conf_lvl})**\n")
 
-            sections.append("| Dimension | Level | Score |")
-            sections.append("|---|---|---|")
+            sections.append("| Dimension | Risk Level | Score | Confidence |")
+            sections.append("|---|---|---|---|")
             for dim in ra.dimensions:
                 d_emoji = RISK_EMOJI.get(dim.level, "⚪")
                 d_name = dim_names.get(dim.dimension.value, dim.dimension.value)
-                sections.append(f"| {d_name} | {d_emoji} {dim.level.value} | {dim.score:.0%} |")
+                d_conf = getattr(dim, "confidence_score", 0.85)
+                d_conf_lvl = getattr(dim, "confidence_level", "HIGH")
+                sections.append(f"| {d_name} | {d_emoji} {dim.level.value} | {dim.score:.0%} | {d_conf:.0%} ({d_conf_lvl}) |")
             sections.append("")
         else:
             sections.append("*No risk assessment available.*\n")
@@ -291,7 +294,16 @@ class ReportGenerator:
         # 11. Confidence & Uncertainty
         sections.append(f"## {t['confidence']}\n")
         if case.risk_assessment:
-            sections.append(f"**Overall Confidence:** {case.risk_assessment.overall_confidence:.0%}\n")
+            conf_lvl = getattr(case.risk_assessment, "overall_confidence_level", "HIGH")
+            sections.append(f"**Overall Assessment Confidence:** **{case.risk_assessment.overall_confidence:.0%} ({conf_lvl})**\n")
+            cb = getattr(case.risk_assessment, "confidence_breakdown", {})
+            if cb:
+                sections.append("**Confidence Factor Breakdown:**")
+                for factor, score in cb.items():
+                    readable = factor.replace("_", " ").title()
+                    sections.append(f"- **{readable}:** {score:.0%}")
+                sections.append("")
+
             if case.risk_assessment.uncertainties:
                 sections.append("**Uncertainties:**")
                 for u in case.risk_assessment.uncertainties:

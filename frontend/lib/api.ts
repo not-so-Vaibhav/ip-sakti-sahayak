@@ -138,6 +138,8 @@ export interface RiskDimension {
   dimension: string;
   level: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
   score: number;
+  confidence_score?: number;
+  confidence_level?: string;
   reasoning: string;
   supporting_evidence: string[];
 }
@@ -146,6 +148,8 @@ export interface RiskAssessment {
   dimensions: RiskDimension[];
   overall_risk: string;
   overall_confidence: number;
+  overall_confidence_level?: string;
+  confidence_breakdown?: Record<string, number>;
   recommended_actions: string[];
   uncertainties: string[];
 }

@@ -341,11 +341,43 @@ class RiskAssessor:
             else f"Prior art exposure from {research_count} papers and {tk_count} TK sources."
         )
 
+        # Confidence score computation (multi-factor mathematical model)
+        # Factor 1: Evidence Density (patents, research papers, TK records found)
+        evidence_density = min(1.0, 0.45 + 0.12 * min(4, patent_count) + 0.10 * min(3, tk_count) + 0.05 * min(2, research_count))
+        # Factor 2: Statutory Grounding (clarity of category rules under Indian Law)
+        statutory_grounding = 0.95 if category in ("classical_generic", "phytopharmaceutical") else 0.85
+        # Factor 3: Overlap & Concordance Strength
+        concordance = 0.92 if (max_tk_overlap > 0.5 or max_patent_overlap > 0.5) else 0.78
+        # Factor 4: Prior Art Depth
+        prior_art_depth = min(1.0, 0.55 + 0.08 * (patent_count + tk_count + research_count))
+
+        confidence_breakdown = {
+            "evidence_density": round(evidence_density, 3),
+            "statutory_grounding": round(statutory_grounding, 3),
+            "concordance_strength": round(concordance, 3),
+            "prior_art_depth": round(prior_art_depth, 3),
+        }
+
+        overall_confidence = round(
+            0.35 * evidence_density + 0.30 * statutory_grounding + 0.20 * concordance + 0.15 * prior_art_depth,
+            3,
+        )
+        overall_confidence_level = "HIGH" if overall_confidence >= 0.80 else ("MEDIUM" if overall_confidence >= 0.60 else "LOW")
+
+        # Per-dimension confidence scores:
+        novelty_conf = round(min(1.0, 0.70 + 0.08 * min(4, patent_count) + (0.15 if category == "classical_generic" else 0.0)), 2)
+        tk_conf = round(min(1.0, 0.75 + 0.10 * min(3, tk_count) + (0.15 if category == "classical_generic" else 0.0)), 2)
+        reg_conf = round(0.92 if category in ("classical_generic", "phytopharmaceutical") else 0.82, 2)
+        abs_conf = round(0.90, 2)  # BDA Section 6 is statutory with zero ambiguity
+        prior_conf = round(min(1.0, 0.70 + 0.06 * min(5, patent_count + research_count + tk_count)), 2)
+
         dimensions = [
             RiskDimension(
                 dimension=RiskDimensionType.NOVELTY_RISK,
                 level=_score_to_level(novelty_score),
                 score=round(novelty_score, 3),
+                confidence_score=novelty_conf,
+                confidence_level="HIGH" if novelty_conf >= 0.80 else "MEDIUM",
                 reasoning=reasoning_map.get("NOVELTY", default_novelty),
                 supporting_evidence=novelty_evidence,
             ),
@@ -353,6 +385,8 @@ class RiskAssessor:
                 dimension=RiskDimensionType.TK_OVERLAP,
                 level=_score_to_level(tk_score),
                 score=round(tk_score, 3),
+                confidence_score=tk_conf,
+                confidence_level="HIGH" if tk_conf >= 0.80 else "MEDIUM",
                 reasoning=reasoning_map.get("TK_OVERLAP", default_tk),
                 supporting_evidence=tk_evidence,
             ),
@@ -360,6 +394,8 @@ class RiskAssessor:
                 dimension=RiskDimensionType.REGULATORY_COMPLEXITY,
                 level=reg_level,
                 score=round(reg_score, 3),
+                confidence_score=reg_conf,
+                confidence_level="HIGH" if reg_conf >= 0.80 else "MEDIUM",
                 reasoning=reasoning_map.get("REGULATORY", reg_reason),
                 supporting_evidence=[],
             ),
@@ -367,6 +403,8 @@ class RiskAssessor:
                 dimension=RiskDimensionType.ABS_COMPLIANCE,
                 level=_score_to_level(abs_score),
                 score=round(abs_score, 3),
+                confidence_score=abs_conf,
+                confidence_level="HIGH" if abs_conf >= 0.80 else "MEDIUM",
                 reasoning=reasoning_map.get("ABS", default_abs),
                 supporting_evidence=abs_evidence,
             ),
@@ -374,6 +412,8 @@ class RiskAssessor:
                 dimension=RiskDimensionType.PRIOR_ART_EXPOSURE,
                 level=_score_to_level(prior_score),
                 score=round(prior_score, 3),
+                confidence_score=prior_conf,
+                confidence_level="HIGH" if prior_conf >= 0.80 else "MEDIUM",
                 reasoning=reasoning_map.get("PRIOR_ART", default_prior),
                 supporting_evidence=prior_evidence,
             ),
@@ -384,7 +424,6 @@ class RiskAssessor:
         scores = [d.score for d in dimensions]
         overall_score = sum(w * s for w, s in zip(weights, scores))
         overall_risk = _score_to_level(overall_score)
-        overall_confidence = round(1.0 - (overall_score * 0.3), 3)  # Higher risk → slightly lower confidence
 
         # Generate recommended actions
         actions = self._generate_actions(dimensions, category)
@@ -394,6 +433,8 @@ class RiskAssessor:
             dimensions=dimensions,
             overall_risk=overall_risk,
             overall_confidence=round(overall_confidence, 3),
+            overall_confidence_level=overall_confidence_level,
+            confidence_breakdown=confidence_breakdown,
             recommended_actions=actions,
             uncertainties=uncertainties,
         )
