@@ -561,9 +561,37 @@ export const InvestigationDashboard: React.FC<InvestigationDashboardProps> = ({
                       </div>
                       <p className="text-[10px] leading-relaxed opacity-85">{dim.reasoning}</p>
 
-                      {dim.dimension === "regulatory_complexity" && (
+                      {/* Statutory citation chip per dimension */}
+                      {dim.dimension === "novelty_risk" && (dim.level === "CRITICAL" || dim.level === "HIGH") && (
+                        <div className="mt-2 pt-1.5 border-t border-black/10 text-[9px] opacity-90 font-medium text-red-800">
+                          ⚖️ {isHi ? "पेटेंट अधिनियम, 1970 · धारा 3(p) एवं 3(e) गैर-पेटेंट योग्यता बाधा" : "Patents Act, 1970 · Section 3(p) & 3(e) Non-Patentability Bar"}
+                        </div>
+                      )}
+                      {dim.dimension === "novelty_risk" && (dim.level === "LOW" || dim.level === "MEDIUM") && (
+                        <div className="mt-2 pt-1.5 border-t border-black/10 text-[9px] opacity-90 font-medium text-emerald-800">
+                          ⚖️ {isHi ? "पेटेंट अधिनियम, 1970 · धारा 2(1)(j) नवीनता एवं आविष्कारशीलता" : "Patents Act, 1970 · Section 2(1)(j) Novelty & Inventive Step"}
+                        </div>
+                      )}
+
+                      {dim.dimension === "tk_overlap" && (dim.level === "CRITICAL" || dim.level === "HIGH") && (
+                        <div className="mt-2 pt-1.5 border-t border-black/10 text-[9px] opacity-90 font-medium text-red-800">
+                          📜 {isHi ? "डी&सी अधिनियम, 1940 प्रथम अनुसूची ग्रंथ एवं टीकेडीएल पूर्व कला" : "D&C Act, 1940 First Schedule Treatises & TKDL Prior Art"}
+                        </div>
+                      )}
+                      {dim.dimension === "tk_overlap" && (dim.level === "LOW" || dim.level === "MEDIUM") && (
+                        <div className="mt-2 pt-1.5 border-t border-black/10 text-[9px] opacity-90 font-medium text-[#2D5A27]">
+                          📜 {isHi ? "शास्त्रीय ग्रंथों में अप्रलेखित संयोजन" : "Undocumented Combination in First Schedule Treatises"}
+                        </div>
+                      )}
+
+                      {dim.dimension === "regulatory_complexity" && dim.level === "LOW" && (
                         <div className="mt-2 pt-1.5 border-t border-black/10 text-[9px] opacity-90 font-medium text-[#2D5A27]">
                           ⚖️ {isHi ? "डी&सी नियम, 1945 नियम 158B · फॉर्म 25D शास्त्रीय निर्माण लाइसेंस" : "D&C Rules, 1945 Rule 158B · Form 25D Classical ASU License"}
+                        </div>
+                      )}
+                      {dim.dimension === "regulatory_complexity" && (dim.level === "CRITICAL" || dim.level === "HIGH") && (
+                        <div className="mt-2 pt-1.5 border-t border-black/10 text-[9px] opacity-90 font-medium text-orange-800">
+                          ⚖️ {isHi ? "डी&सी नियम, 1945 नियम 122E / अनुसूची Y · नैदानिक परीक्षण डोजियर" : "D&C Rules, 1945 Rule 122E / Schedule Y · Clinical Trial Dossier Required"}
                         </div>
                       )}
 
@@ -572,10 +600,20 @@ export const InvestigationDashboard: React.FC<InvestigationDashboardProps> = ({
                           🌿 {isHi ? "जैविक विविधता अधिनियम धारा 40 एवं 2023 संशोधन छूट" : "BDA 2002 Sec 40 & 2023 Amendment ASU Exemption"}
                         </div>
                       )}
+                      {dim.dimension === "abs_compliance" && (dim.level === "CRITICAL" || dim.level === "HIGH") && (
+                        <div className="mt-2 pt-1.5 border-t border-black/10 text-[9px] opacity-90 font-medium text-orange-800">
+                          🌿 {isHi ? "जैविक विविधता अधिनियम धारा 6 एवं NBA फॉर्म III अनिवार्य" : "BDA 2002 Section 6 · Mandatory NBA Form III Prior Approval"}
+                        </div>
+                      )}
 
-                      {dim.dimension === "novelty_risk" && dim.level === "CRITICAL" && (
+                      {dim.dimension === "prior_art_exposure" && (dim.level === "CRITICAL" || dim.level === "HIGH") && (
                         <div className="mt-2 pt-1.5 border-t border-black/10 text-[9px] opacity-90 font-medium text-red-800">
-                          ⚖️ {isHi ? "पेटेंट अधिनियम, 1970 · धारा 3(p) एवं 3(e) गैर-पेटेंट योग्यता बाधा" : "Patents Act, 1970 · Section 3(p) & 3(e) Non-Patentability Bar"}
+                          🔬 {isHi ? "वैज्ञानिक साहित्य एवं ऐतिहासिक सीएसआईआर निरस्तीकरण मिसालें" : "Scientific Literature & Landmark CSIR Revocation Precedents"}
+                        </div>
+                      )}
+                      {dim.dimension === "prior_art_exposure" && (dim.level === "LOW" || dim.level === "MEDIUM") && (
+                        <div className="mt-2 pt-1.5 border-t border-black/10 text-[9px] opacity-90 font-medium text-[#2D5A27]">
+                          🔬 {isHi ? "सार्वजनिक प्रक्षेत्र में सीमित साहित्य प्रकटीकरण" : "Limited Prior Art Disclosures in Public Domain"}
                         </div>
                       )}
                     </div>

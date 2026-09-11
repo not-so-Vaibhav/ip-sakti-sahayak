@@ -59,14 +59,14 @@ REGULATORY_COMPLEXITY_MAP: Dict[str, Tuple[RiskLevel, float, str]] = {
 
 RISK_REASONING_PROMPT = """You are an IP risk analyst specializing in Indian Ayurvedic intellectual property law.
 
-Given the following investigation data, provide concise reasoning (2-3 sentences each) for the risk levels assigned to each dimension.
+Given the following investigation data, provide concise reasoning (2-3 sentences each) strictly matching the assigned risk level for each of the 5 dimensions.
 
-CRITICAL LEGAL CONTEXT & DIRECTIONALITY (DO NOT INVERT):
-- NOVELTY RISK: A HIGH or CRITICAL Novelty Risk means the formulation LACKS novelty because prior art patents or traditional knowledge anticipations destroy novelty under Sections 3(p) and 3(e) of the Indian Patents Act, 1970. Never state that patent matches indicate "a high likelihood of novelty" or are an "indicator of novelty" — existing patent matches and prior art directly PREVENT, REDUCE, or DESTROY novelty.
-- TK OVERLAP: Measures direct anticipation by classical texts (Charaka Samhita, Sushruta Samhita, TKDL) triggering the Section 3(p) statutory non-patentability bar.
-- REGULATORY COMPLEXITY: Measures manufacturing licensing and clinical hurdles under the Drugs & Cosmetics Rules, 1945. Classical Ayurvedic formulations listed in First Schedule authoritative texts have LOW regulatory complexity because under Rule 158B (Form 25D license), they require classical textual citations rather than new clinical trials or safety dossiers.
-- ABS COMPLIANCE: Measures access and benefit sharing obligations under the Biological Diversity Act, 2002 and Biological Diversity (Amendment) Act, 2023. For classical generic formulations utilizing common herbs (such as turmeric and neem), ABS risk is LOW because cultivated herbs are exempt as normally traded commodities under Section 40, and domestic codified ASU manufacturing is statutorily exempt from SBB prior approval. Never state that a requirement 'further reduces regulatory complexity' or hallucinate 'National Biosafety Form' — NBA stands for National Biodiversity Authority.
-- PRIOR ART EXPOSURE: Measures density of published scientific papers and classical documentation in the public domain.
+LEGAL PRINCIPLES PER DIMENSION (MATCH BADGE TO REASONING):
+- NOVELTY RISK: High/Critical severity means the formulation LACKS novelty because prior art patents or traditional knowledge anticipations create a statutory novelty bar under Sections 3(p) and 3(e) of the Indian Patents Act, 1970. Existing patents and prior art destroy novelty.
+- TK OVERLAP: Measures direct anticipation by classical Ayurvedic texts (Charaka Samhita, Sushruta Samhita) recognized under the First Schedule of the Drugs & Cosmetics Act, 1940 and TKDL records, triggering Section 3(p) statutory bars.
+- REGULATORY COMPLEXITY: Governed by the Drugs & Cosmetics Rules, 1945. For classical generic formulations, regulatory complexity is LOW under Rule 158B (Form 25D classical manufacturing license) because compliance requires classical textual citations rather than new safety or clinical trial dossiers.
+- ABS COMPLIANCE: Governed by the Biological Diversity Act, 2002 (BDA) and the Biological Diversity (Amendment) Act, 2023. For classical generic formulations using commonly traded agricultural herbs (e.g. turmeric, neem), ABS risk is LOW because cultivated ingredients are exempt under Section 40 as Normally Traded Commodities (NTC), and domestic codified ASU manufacturing is exempt from prior State Biodiversity Board (SBB) intimation and NBA approval.
+- PRIOR ART EXPOSURE: Density of published scientific papers and classical documentation in the public domain.
 
 FORMULATION CATEGORY: {category}
 EVIDENCE SUMMARY:
@@ -75,17 +75,15 @@ EVIDENCE SUMMARY:
 - TK/Classical matches found: {tk_count} (max overlap: {max_tk_overlap:.0%})
 - Regulatory sources found: {reg_count}
 
-RISK DIMENSIONS:
-1. Novelty Risk: {novelty_level} ({novelty_score:.0%}) [HIGH/CRITICAL = SEVERE LACK OF NOVELTY due to prior patents/traditional knowledge]
+ASSIGNED RISK LEVELS:
+1. Novelty Risk: {novelty_level} ({novelty_score:.0%}) [High/Critical = Severe Lack of Novelty]
 2. TK Overlap: {tk_level} ({tk_score:.0%})
 3. Regulatory Complexity: {reg_level} ({reg_score:.0%})
-4. ABS Compliance: {abs_level} ({abs_score:.0%})
+4. ABS Compliance: {abs_level} ({abs_score:.0%}) [Low = Statutorily Exempt under Sec 40 NTC]
 5. Prior Art Exposure: {prior_level} ({prior_score:.0%})
 
-For each dimension, provide specific reasoning grounded in the evidence. Reference patent numbers, formulation names, or section numbers where applicable.
-
-OUTPUT FORMAT: Return exactly 5 lines, one per dimension:
-NOVELTY: <reasoning explaining lack of novelty / prior art bar>
+OUTPUT FORMAT: Return exactly 5 lines, one per dimension, with reasoning that strictly justifies the assigned risk level:
+NOVELTY: <reasoning>
 TK_OVERLAP: <reasoning>
 REGULATORY: <reasoning>
 ABS: <reasoning>
@@ -329,70 +327,22 @@ class RiskAssessor:
         except Exception as e:
             logger.warning(f"Failed to generate risk reasoning: {e}")
 
-        # Guardrail against LLM novelty reasoning inversion
-        # (Where LLM mistakes high novelty risk as 'high likelihood of novelty')
-        novelty_text = reasoning_map.get("NOVELTY", "")
-        if novelty_score >= 0.60:
-            inverted_phrases = [
-                "likelihood of novelty",
-                "indicator of novelty",
-                "indicates novelty",
-                "high likelihood of novelty",
-                "strong indicator of novelty",
-                "confirms novelty",
-                "suggests novelty",
-                "high novelty",
-                "novelty is high",
-                "presence of novelty",
-                "high degree of novelty",
-            ]
-            if not novelty_text or any(phrase in novelty_text.lower() for phrase in inverted_phrases):
-                logger.info("Novelty reasoning inversion detected or missing; applying statutory prior art reasoning.")
-                if category == "classical_generic":
-                    reasoning_map["NOVELTY"] = (
-                        f"Presence of {patent_count} patent citations (max overlap {max_patent_overlap:.0%}) combined with "
-                        f"classical Ayurvedic prior art severely compromises novelty. Section 3(p) of the Patents Act, 1970 "
-                        f"strictly excludes traditional knowledge from patentability, while Section 3(e) prohibits mere "
-                        f"admixtures of known substances without empirical proof of synergistic therapeutic enhancement."
-                    )
-                else:
-                    reasoning_map["NOVELTY"] = (
-                        f"High novelty risk ({novelty_score:.0%}) reflects anticipation across {patent_count} prior patent "
-                        f"documents with up to {max_patent_overlap:.0%} overlap, representing a substantial prior art bar "
-                        f"against novelty and inventive step under Section 2(1)(j) of the Patents Act, 1970."
-                    )
-
-        # Ensure regulatory complexity strictly reflects Rule 158B without cross-contaminating Patents Act
-        reg_text = reasoning_map.get("REGULATORY", "")
-        if category == "classical_generic" and ("patent" in reg_text.lower() or not reg_text or "novelty" in reg_text.lower()):
-            reasoning_map["REGULATORY"] = (
-                "Regulatory complexity is LOW under Rule 158B of the Drugs & Cosmetics Rules, 1945. "
-                "Formulations conforming to First Schedule authoritative Ayurvedic treatises qualify "
-                "for Form 25D manufacturing licenses based on classical textual citations, without "
-                "requiring new safety or clinical trial dossiers."
-            )
-
-        # Guardrail against contradictory or hallucinatory ABS reasoning
-        # (Where LLMs hallucinate 'National Biosafety Form' or contradict low risk with 'adds complexity, further reducing complexity')
-        abs_text = reasoning_map.get("ABS", "")
-        abs_contradictions = [
-            "reducing the regulatory complexity",
-            "reduces the regulatory complexity",
-            "further reducing",
-            "national biosafety",
-            "biosafety form",
-            "adds an additional layer of complexity and compliance, further reducing",
-            "adds an additional layer",
-        ]
-        if abs_score <= 0.40:
-            if not abs_text or any(phrase in abs_text.lower() for phrase in abs_contradictions) or "high risk" in abs_text.lower():
-                logger.info("ABS reasoning contradiction/hallucination detected; applying statutory BDA exemption reasoning.")
-                reasoning_map["ABS"] = (
-                    "ABS compliance risk is LOW because commonly cultivated herbs (such as turmeric and neem) are "
-                    "exempt as normally traded commodities under Section 40 of the Biological Diversity Act, 2002. "
-                    "Furthermore, under the Biological Diversity (Amendment) Act, 2023, codified traditional Ayurvedic "
-                    "preparations manufactured for domestic use are exempt from prior SBB intimation and NBA Form III approval."
-                )
+        # Systemic consistency validation across ALL 5 risk dimensions
+        reasoning_map = self._enforce_systemic_consistency(
+            reasoning_map=reasoning_map,
+            category=category,
+            novelty_score=novelty_score,
+            patent_count=patent_count,
+            max_patent_overlap=max_patent_overlap,
+            tk_score=tk_score,
+            tk_count=tk_count,
+            max_tk_overlap=max_tk_overlap,
+            reg_score=reg_score,
+            reg_level=reg_level,
+            abs_score=abs_score,
+            research_count=research_count,
+            prior_score=prior_score,
+        )
 
         # Segregate regulatory citations: D&C Act -> Regulatory, Patents Act -> Novelty
         dca_sources = [
@@ -589,6 +539,155 @@ class RiskAssessor:
         )
 
         return uncertainties
+
+    def _enforce_systemic_consistency(
+        self,
+        reasoning_map: Dict[str, str],
+        category: str,
+        novelty_score: float,
+        patent_count: int,
+        max_patent_overlap: float,
+        tk_score: float,
+        tk_count: int,
+        max_tk_overlap: float,
+        reg_score: float,
+        reg_level: RiskLevel,
+        abs_score: float,
+        research_count: int,
+        prior_score: float,
+    ) -> Dict[str, str]:
+        """Enforce 100% semantic consistency between risk badges and explanatory prose across all 5 dimensions."""
+        # 1. NOVELTY RISK
+        nov_text = reasoning_map.get("NOVELTY", "")
+        if novelty_score >= 0.60:
+            inverted_novelty = [
+                "likelihood of novelty",
+                "indicator of novelty",
+                "indicates novelty",
+                "high likelihood of novelty",
+                "strong indicator of novelty",
+                "confirms novelty",
+                "suggests novelty",
+                "high novelty",
+                "novelty is high",
+                "presence of novelty",
+                "high degree of novelty",
+                "supports novelty",
+                "novelty is preserved",
+                "is novel",
+                "favorable for patent",
+                "patentable",
+            ]
+            if not nov_text or any(p in nov_text.lower() for p in inverted_novelty):
+                logger.info("Novelty reasoning contradiction detected; applying statutory prior art bar reasoning.")
+                if category == "classical_generic":
+                    reasoning_map["NOVELTY"] = (
+                        f"Presence of {patent_count} patent citations (max overlap {max_patent_overlap:.0%}) combined with "
+                        f"classical Ayurvedic prior art severely compromises novelty. Section 3(p) of the Patents Act, 1970 "
+                        f"strictly excludes traditional knowledge from patentability, while Section 3(e) prohibits mere "
+                        f"admixtures of known substances without empirical proof of synergistic therapeutic enhancement."
+                    )
+                else:
+                    reasoning_map["NOVELTY"] = (
+                        f"High novelty risk ({novelty_score:.0%}) reflects anticipation across {patent_count} prior patent "
+                        f"documents with up to {max_patent_overlap:.0%} overlap, representing a substantial prior art bar "
+                        f"against novelty and inventive step under Section 2(1)(j) of the Patents Act, 1970."
+                    )
+        elif novelty_score <= 0.35:
+            if not nov_text or any(p in nov_text.lower() for p in ["lacks novelty", "severely compromises novelty", "prohibits patentability", "section 3(p) bar"]):
+                reasoning_map["NOVELTY"] = (
+                    f"Novelty risk is LOW ({novelty_score:.0%}) due to minimal prior art patent overlap ({max_patent_overlap:.0%}) "
+                    f"across retrieved patent databases, suggesting novel formulation features under Section 2(1)(j) of the Patents Act, 1970."
+                )
+
+        # 2. TK OVERLAP
+        tk_text = reasoning_map.get("TK_OVERLAP", "")
+        if tk_score >= 0.60:
+            inverted_tk = [
+                "no overlap", "low overlap", "minimal overlap", "no traditional knowledge",
+                "tk overlap is low", "absence of classical", "not found in classical", "minimal tk"
+            ]
+            if not tk_text or any(p in tk_text.lower() for p in inverted_tk):
+                logger.info("TK overlap contradiction detected; applying classical treatise anticipation reasoning.")
+                reasoning_map["TK_OVERLAP"] = (
+                    f"Direct traditional knowledge overlap detected ({max_tk_overlap:.0%}) with classical Ayurvedic treatises "
+                    f"recognized under the First Schedule of the Drugs & Cosmetics Act, 1940 (e.g., Charaka Samhita, Sushruta Samhita) "
+                    f"and the TKDL prior art corpus, triggering Section 3(p) statutory bars."
+                )
+        elif tk_score <= 0.35:
+            if not tk_text or any(p in tk_text.lower() for p in ["direct traditional knowledge overlap", "high tk overlap", "critical overlap"]):
+                reasoning_map["TK_OVERLAP"] = (
+                    f"Traditional knowledge overlap is LOW ({tk_score:.0%}) with only {tk_count} classical references found "
+                    f"(max overlap {max_tk_overlap:.0%}), indicating distinct composition from classical First Schedule formulations."
+                )
+
+        # 3. REGULATORY COMPLEXITY
+        reg_text = reasoning_map.get("REGULATORY", "")
+        if reg_score <= 0.40 or category == "classical_generic":
+            contradictory_reg = [
+                "patent", "novelty", "biosafety", "high regulatory complexity", "critical complexity",
+                "clinical trials required", "requires clinical trials", "schedule y", "rule 122e",
+                "significant regulatory burden", "severe regulatory hurdle", "adds an additional layer"
+            ]
+            if not reg_text or any(p in reg_text.lower() for p in contradictory_reg) or category == "classical_generic":
+                reasoning_map["REGULATORY"] = (
+                    "Regulatory complexity is LOW under Rule 158B of the Drugs & Cosmetics Rules, 1945. "
+                    "Formulations conforming to First Schedule authoritative Ayurvedic treatises qualify "
+                    "for Form 25D manufacturing licenses based on classical textual citations, without "
+                    "requiring new safety or clinical trial dossiers."
+                )
+        elif reg_score >= 0.60:
+            if not reg_text or any(p in reg_text.lower() for p in ["low regulatory complexity", "exempt from clinical trials", "form 25d", "without requiring clinical trials"]):
+                reasoning_map["REGULATORY"] = (
+                    f"High regulatory complexity ({reg_score:.0%}) reflects stringent compliance requirements under Rule 122E "
+                    f"and Schedule Y of the Drugs & Cosmetics Rules, 1945, necessitating standardized bioactive markers, "
+                    f"stability testing, and preclinical/clinical safety dossiers."
+                )
+
+        # 4. ABS COMPLIANCE
+        abs_text = reasoning_map.get("ABS", "")
+        if abs_score <= 0.40:
+            contradictory_abs = [
+                "reducing the regulatory", "reduces the regulatory", "further reducing",
+                "national biosafety", "biosafety form", "adds an additional layer", "adds complexity",
+                "high risk", "critical risk", "major regulatory hurdle", "mandatory nba form iii",
+                "requires nba form iii", "mandates the submission of"
+            ]
+            if not abs_text or any(p in abs_text.lower() for p in contradictory_abs) or "exemption" not in abs_text.lower():
+                logger.info("ABS reasoning contradiction/hallucination detected; applying statutory BDA exemption reasoning.")
+                reasoning_map["ABS"] = (
+                    "ABS compliance risk is LOW because commonly cultivated herbs (such as turmeric and neem) are "
+                    "exempt as normally traded commodities under Section 40 of the Biological Diversity Act, 2002. "
+                    "Furthermore, under the Biological Diversity (Amendment) Act, 2023, codified traditional Ayurvedic "
+                    "preparations manufactured for domestic use are exempt from prior SBB intimation and NBA Form III approval."
+                )
+        elif abs_score >= 0.60:
+            if not abs_text or any(p in abs_text.lower() for p in ["exempt from abs", "low abs risk", "no benefit sharing", "low risk"]):
+                reasoning_map["ABS"] = (
+                    f"ABS compliance risk is HIGH ({abs_score:.0%}) under Section 6 of the Biological Diversity Act, 2002, "
+                    f"which mandates prior approval from the National Biodiversity Authority (NBA Form III) and equitable "
+                    f"benefit-sharing agreements before commercial patent grants involving Indian bioresources."
+                )
+
+        # 5. PRIOR ART EXPOSURE
+        prior_text = reasoning_map.get("PRIOR_ART", "")
+        if prior_score >= 0.60:
+            inverted_prior = [
+                "no prior art", "low prior art", "scant prior art", "absence of prior art", "minimal prior art", "no public domain"
+            ]
+            if not prior_text or any(p in prior_text.lower() for p in inverted_prior):
+                reasoning_map["PRIOR_ART"] = (
+                    f"Significant prior art exposure with {research_count} scientific papers, {tk_count} classical formulation sources, "
+                    f"and landmark patent revocation precedents (e.g. CSIR turmeric patent revocation), demonstrating extensive public domain disclosure."
+                )
+        elif prior_score <= 0.35:
+            if not prior_text or any(p in prior_text.lower() for p in ["extensive prior art", "critical prior art", "dense prior art"]):
+                reasoning_map["PRIOR_ART"] = (
+                    f"Prior art exposure is LOW ({prior_score:.0%}) with limited public domain disclosures ({research_count} scientific papers, "
+                    f"{tk_count} classical references), indicating favorable space for IP differentiation."
+                )
+
+        return reasoning_map
 
 
 risk_assessor_service = RiskAssessor()
