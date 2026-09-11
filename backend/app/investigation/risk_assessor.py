@@ -61,6 +61,13 @@ RISK_REASONING_PROMPT = """You are an IP risk analyst specializing in Indian Ayu
 
 Given the following investigation data, provide concise reasoning (2-3 sentences each) for the risk levels assigned to each dimension.
 
+CRITICAL LEGAL CONTEXT & DIRECTIONALITY (DO NOT INVERT):
+- NOVELTY RISK: A HIGH or CRITICAL Novelty Risk means the formulation LACKS novelty because prior art patents or traditional knowledge anticipations destroy novelty under Sections 3(p) and 3(e) of the Indian Patents Act, 1970. Never state that patent matches indicate "a high likelihood of novelty" or are an "indicator of novelty" — existing patent matches and prior art directly PREVENT, REDUCE, or DESTROY novelty.
+- TK OVERLAP: Measures direct anticipation by classical texts (Charaka Samhita, Sushruta Samhita, TKDL) triggering the Section 3(p) statutory non-patentability bar.
+- REGULATORY COMPLEXITY: Measures licensing and clinical trial burdens under the Drugs & Cosmetics Act, 1940. Classical Ayurvedic formulations have LOW regulatory complexity because they are exempt from clinical trials under Rule 158B (Form 25D manufacturing license), whereas patentability exclusions are captured separately under Novelty Risk.
+- ABS COMPLIANCE: Measures access and benefit sharing obligations under Biological Diversity Act, 2002 Section 6 (mandatory NBA Form III approval before patent grant).
+- PRIOR ART EXPOSURE: Measures density of published scientific papers and classical documentation in the public domain.
+
 FORMULATION CATEGORY: {category}
 EVIDENCE SUMMARY:
 - Patent matches found: {patent_count} (max overlap: {max_patent_overlap:.0%})
@@ -69,7 +76,7 @@ EVIDENCE SUMMARY:
 - Regulatory sources found: {reg_count}
 
 RISK DIMENSIONS:
-1. Novelty Risk: {novelty_level} ({novelty_score:.0%})
+1. Novelty Risk: {novelty_level} ({novelty_score:.0%}) [HIGH/CRITICAL = SEVERE LACK OF NOVELTY due to prior patents/traditional knowledge]
 2. TK Overlap: {tk_level} ({tk_score:.0%})
 3. Regulatory Complexity: {reg_level} ({reg_score:.0%})
 4. ABS Compliance: {abs_level} ({abs_score:.0%})
@@ -78,7 +85,7 @@ RISK DIMENSIONS:
 For each dimension, provide specific reasoning grounded in the evidence. Reference patent numbers, formulation names, or section numbers where applicable.
 
 OUTPUT FORMAT: Return exactly 5 lines, one per dimension:
-NOVELTY: <reasoning>
+NOVELTY: <reasoning explaining lack of novelty / prior art bar>
 TK_OVERLAP: <reasoning>
 REGULATORY: <reasoning>
 ABS: <reasoning>
@@ -322,6 +329,48 @@ class RiskAssessor:
         except Exception as e:
             logger.warning(f"Failed to generate risk reasoning: {e}")
 
+        # Guardrail against LLM novelty reasoning inversion
+        # (Where LLM mistakes high novelty risk as 'high likelihood of novelty')
+        novelty_text = reasoning_map.get("NOVELTY", "")
+        if novelty_score >= 0.60:
+            inverted_phrases = [
+                "likelihood of novelty",
+                "indicator of novelty",
+                "indicates novelty",
+                "high likelihood of novelty",
+                "strong indicator of novelty",
+                "confirms novelty",
+                "suggests novelty",
+                "high novelty",
+                "novelty is high",
+                "presence of novelty",
+                "high degree of novelty",
+            ]
+            if not novelty_text or any(phrase in novelty_text.lower() for phrase in inverted_phrases):
+                logger.info("Novelty reasoning inversion detected or missing; applying statutory prior art reasoning.")
+                if category == "classical_generic":
+                    reasoning_map["NOVELTY"] = (
+                        f"Presence of {patent_count} patent citations (max overlap {max_patent_overlap:.0%}) combined with "
+                        f"classical Ayurvedic prior art severely compromises novelty. Section 3(p) of the Patents Act, 1970 "
+                        f"strictly excludes traditional knowledge from patentability, while Section 3(e) prohibits mere "
+                        f"admixtures of known substances without empirical proof of synergistic therapeutic enhancement."
+                    )
+                else:
+                    reasoning_map["NOVELTY"] = (
+                        f"High novelty risk ({novelty_score:.0%}) reflects anticipation across {patent_count} prior patent "
+                        f"documents with up to {max_patent_overlap:.0%} overlap, representing a substantial prior art bar "
+                        f"against novelty and inventive step under Section 2(1)(j) of the Patents Act, 1970."
+                    )
+
+        # Ensure regulatory complexity clearly distinguishes D&C manufacturing clearance from Patents Act bars
+        reg_text = reasoning_map.get("REGULATORY", "")
+        if category == "classical_generic" and ("patent" in reg_text.lower() or not reg_text):
+            reasoning_map["REGULATORY"] = (
+                "Regulatory complexity is LOW because classical Ayurvedic formulations listed in First Schedule authoritative texts "
+                "are exempt from safety and clinical trials under Rule 158B of the Drugs & Cosmetics Act, 1940 (Form 25D license). "
+                "Statutory patentability bars (Patents Act §3(p)) are evaluated separately under Novelty Risk."
+            )
+
         # Build dimensions
         default_novelty = (
             "Section 3(p) of the Patents Act, 1970 strictly excludes traditional knowledge from patentability. Section 3(e) prohibits combinations of known herbal ingredients absent empirical demonstration of synergistic therapeutic bio-enhancement."
@@ -342,29 +391,28 @@ class RiskAssessor:
             else f"Prior art exposure from {research_count} papers and {tk_count} TK sources."
         )
 
-        # Multi-factor calibrated confidence calculation
-        # Max theoretical confidence capped below 0.90 to reflect intrinsic legal/examiner discretion margin
+        # Multi-factor calibrated confidence calculation (fixed 4-pillar deterministic framework)
         total_sources = len(evidence)
         max_overall_overlap = max(comparison.overlap_scores.values()) if comparison.overlap_scores else 0.0
 
-        # Factor 1: Cross-Source Corroboration (logarithmic scaling based on multi-source discovery)
+        # Factor 1: Cross-Source Corroboration (multi-source discovery across TKDL, patents, research)
         corroboration = min(0.89, 0.60 + 0.07 * math.log2(max(1, total_sources)))
 
-        # Factor 2: Element-Wise Concordance (scaled by top evidence overlap)
+        # Factor 2: Element Concordance (scaled by top evidence overlap)
         concordance = round(min(0.90, 0.55 + 0.35 * max_overall_overlap), 3)
 
-        # Factor 3: Retrieval Quality (average top relevance score)
+        # Factor 3: Retrieval Relevance (average top relevance score)
         top_scores = [s.relevance_score for s in evidence[:5]]
         retrieval_quality = round(sum(top_scores) / max(len(top_scores), 1), 3) if top_scores else 0.72
 
-        # Factor 4: Statutory Precedent Determinism (based on statutory category clarity)
+        # Factor 4: Statutory Grounding (statutory determinism under D&C Act & Patents Act)
         statutory_certainty = 0.87 if category in ("classical_generic", "phytopharmaceutical") else 0.78
 
         confidence_breakdown = {
-            "cross_source_corroboration": round(corroboration, 3),
+            "evidence_corroboration": round(corroboration, 3),
             "element_concordance": round(concordance, 3),
             "retrieval_relevance": round(retrieval_quality, 3),
-            "statutory_determinism": round(statutory_certainty, 3),
+            "statutory_grounding": round(statutory_certainty, 3),
         }
 
         overall_confidence = round(

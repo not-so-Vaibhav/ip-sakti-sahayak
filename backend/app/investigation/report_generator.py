@@ -206,8 +206,10 @@ class ReportGenerator:
 
             for i, src in enumerate(filtered[:5], 1):
                 overlap = ""
-                if case.comparison_matrix:
-                    ov = case.comparison_matrix.overlap_scores.get(src.source_id, 0)
+                if src.source_type == EvidenceSourceType.REGULATION:
+                    overlap = " | *Governing Legal Authority (Statutory Guidance)*"
+                elif case.comparison_matrix and src.source_id in case.comparison_matrix.overlap_scores:
+                    ov = case.comparison_matrix.overlap_scores[src.source_id]
                     overlap = f" | Overlap: **{ov:.0%}**"
                 sections.append(f"### {i}. {src.title}")
                 sections.append(f"- **ID:** {src.identifier or 'N/A'}")

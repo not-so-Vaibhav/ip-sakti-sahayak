@@ -82,6 +82,54 @@ const DIMENSION_NAMES: Record<string, { en: string; hi: string }> = {
   prior_art_exposure: { en: "Prior Art Exposure", hi: "पूर्व कला जोखिम" },
 };
 
+const CONFIDENCE_METRIC_META: Record<string, { label: string; labelHi: string; desc: string }> = {
+  evidence_corroboration: {
+    label: "Evidence Corroboration",
+    labelHi: "प्रमाण संपुष्टि",
+    desc: "Multi-source evidence depth across TKDL, patent & scientific literature corpora",
+  },
+  cross_source_corroboration: {
+    label: "Evidence Corroboration",
+    labelHi: "प्रमाण संपुष्टि",
+    desc: "Multi-source evidence depth across TKDL, patent & scientific literature corpora",
+  },
+  element_concordance: {
+    label: "Element Concordance",
+    labelHi: "तत्व अनुरूपता",
+    desc: "Exact ingredient, ratio, process & clinical indication matching",
+  },
+  retrieval_relevance: {
+    label: "Retrieval Relevance",
+    labelHi: "पुनर्प्राप्ति प्रासंगिकता",
+    desc: "Semantic ranking precision of retrieved prior art citations",
+  },
+  statutory_grounding: {
+    label: "Statutory Grounding",
+    labelHi: "वैधानिक आधार",
+    desc: "Statutory determinism under D&C Act and Patents Act legal precedents",
+  },
+  statutory_determinism: {
+    label: "Statutory Grounding",
+    labelHi: "वैधानिक आधार",
+    desc: "Statutory determinism under D&C Act and Patents Act legal precedents",
+  },
+  evidence_density: {
+    label: "Evidence Corroboration",
+    labelHi: "प्रमाण संपुष्टि",
+    desc: "Multi-source evidence depth across prior art corpora",
+  },
+  concordance_strength: {
+    label: "Element Concordance",
+    labelHi: "तत्व अनुरूपता",
+    desc: "Exact ingredient, ratio & process concordance",
+  },
+  prior_art_depth: {
+    label: "Retrieval Relevance",
+    labelHi: "पुनर्प्राप्ति प्रासंगिकता",
+    desc: "Semantic ranking precision of retrieved citations",
+  },
+};
+
 export const InvestigationDashboard: React.FC<InvestigationDashboardProps> = ({
   language,
   jurisdiction,
@@ -315,6 +363,7 @@ export const InvestigationDashboard: React.FC<InvestigationDashboardProps> = ({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {investigationCase.evidence_sources.slice(0, 8).map((src) => {
                   const cfg = SOURCE_TYPE_CONFIG[src.source_type] || SOURCE_TYPE_CONFIG.regulation;
+                  const isRegulation = src.source_type === "regulation";
                   const overlap = investigationCase.comparison_matrix?.overlap_scores?.[src.source_id];
                   return (
                     <div key={src.source_id} className="border border-[#D8EADB] rounded-xl p-4 hover:shadow-md transition-shadow">
@@ -328,10 +377,22 @@ export const InvestigationDashboard: React.FC<InvestigationDashboardProps> = ({
                       </div>
                       <h4 className="text-sm font-semibold text-[#1E2D24] mb-1 line-clamp-2">{src.title}</h4>
                       {src.identifier && <p className="text-xs text-[#4B6354] mb-1">📋 {src.identifier}</p>}
-                      {overlap !== undefined && (
+                      {isRegulation ? (
+                        <div className="mt-2 bg-[#F3FFFB] border border-[#D8EADB] rounded-lg p-2 text-[10px]">
+                          <div className="flex items-center justify-between text-[#2D5A27] font-semibold mb-0.5">
+                            <span>{isHi ? "⚖️ शासी वैधानिक प्राधिकरण" : "⚖️ Governing Statutory Authority"}</span>
+                            <span className="font-bold">{(src.relevance_score * 100).toFixed(0)}% {isHi ? "प्रयोज्यता" : "Applicability"}</span>
+                          </div>
+                          <p className="text-[#4B6354] text-[9px] leading-tight">
+                            {isHi
+                              ? "वैधानिक प्रावधान नुस्खा सामग्री के बजाय कानूनी पात्रता और लाइसेंसिंग मार्गों को नियंत्रित करते हैं।"
+                              : "Statutory provision governing legal eligibility & licensing pathways rather than recipe elements."}
+                          </p>
+                        </div>
+                      ) : overlap !== undefined ? (
                         <div className="mt-2">
                           <div className="flex items-center justify-between text-[10px] mb-0.5">
-                            <span className="text-[#4B6354]">{isHi ? "ओवरलैप" : "Overlap"}</span>
+                            <span className="text-[#4B6354]">{isHi ? "तत्व ओवरलैप" : "Element Overlap"}</span>
                             <span className={`font-bold ${overlap > 0.7 ? "text-red-600" : overlap > 0.4 ? "text-amber-600" : "text-emerald-600"}`}>
                               {(overlap * 100).toFixed(0)}%
                             </span>
@@ -345,7 +406,7 @@ export const InvestigationDashboard: React.FC<InvestigationDashboardProps> = ({
                             />
                           </div>
                         </div>
-                      )}
+                      ) : null}
                       <p className="text-xs text-[#6B7E72] mt-2 line-clamp-2">{src.relevant_text}</p>
                     </div>
                   );
@@ -362,48 +423,55 @@ export const InvestigationDashboard: React.FC<InvestigationDashboardProps> = ({
                 {isHi ? "तत्व-वार तुलना" : "Element-Wise Comparison"}
               </h3>
               <div className="overflow-x-auto">
-                <table className="w-full text-xs">
-                  <thead>
-                    <tr className="bg-[#F3FFFB]">
-                      <th className="text-left p-2 font-semibold text-[#2D5A27] sticky left-0 bg-[#F3FFFB]">{isHi ? "तत्व" : "Element"}</th>
-                      <th className="p-2 font-semibold text-[#2D5A27]">{isHi ? "प्रकार" : "Type"}</th>
-                      <th className="p-2 font-semibold text-[#2D5A27]">{isHi ? "उपयोगकर्ता" : "User"}</th>
-                      {investigationCase.comparison_matrix.evidence_sources.slice(0, 6).map((s) => (
-                        <th key={s.source_id} className="p-2 font-semibold text-[#4B6354] max-w-[100px] truncate" title={s.title}>
-                          {s.title.slice(0, 18)}...
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {investigationCase.comparison_matrix.comparisons.map((comp, idx) => (
-                      <tr key={idx} className={idx % 2 === 0 ? "bg-white" : "bg-[#F3FFFB]/30"}>
-                        <td className="p-2 font-medium text-[#1E2D24] sticky left-0 bg-inherit">{comp.element_name}</td>
-                        <td className="p-2 text-center text-[#4B6354]">{comp.element_type}</td>
-                        <td className="p-2 text-center text-emerald-600 font-bold">✓</td>
-                        {investigationCase.comparison_matrix!.evidence_sources.slice(0, 6).map((s) => (
-                          <td key={s.source_id} className={`p-2 text-center font-bold ${comp.matches[s.source_id] ? "text-emerald-600" : "text-red-400"}`}>
-                            {comp.matches[s.source_id] ? "✓" : "✕"}
-                          </td>
+                {(() => {
+                  const formulationSources = investigationCase.comparison_matrix.evidence_sources
+                    .filter((s) => s.source_type !== "regulation")
+                    .slice(0, 6);
+                  return (
+                    <table className="w-full text-xs">
+                      <thead>
+                        <tr className="bg-[#F3FFFB]">
+                          <th className="text-left p-2 font-semibold text-[#2D5A27] sticky left-0 bg-[#F3FFFB]">{isHi ? "तत्व" : "Element"}</th>
+                          <th className="p-2 font-semibold text-[#2D5A27]">{isHi ? "प्रकार" : "Type"}</th>
+                          <th className="p-2 font-semibold text-[#2D5A27]">{isHi ? "उपयोगकर्ता" : "User"}</th>
+                          {formulationSources.map((s) => (
+                            <th key={s.source_id} className="p-2 font-semibold text-[#4B6354] max-w-[100px] truncate" title={s.title}>
+                              {s.title.slice(0, 18)}...
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {investigationCase.comparison_matrix.comparisons.map((comp, idx) => (
+                          <tr key={idx} className={idx % 2 === 0 ? "bg-white" : "bg-[#F3FFFB]/30"}>
+                            <td className="p-2 font-medium text-[#1E2D24] sticky left-0 bg-inherit">{comp.element_name}</td>
+                            <td className="p-2 text-center text-[#4B6354]">{comp.element_type}</td>
+                            <td className="p-2 text-center text-emerald-600 font-bold">✓</td>
+                            {formulationSources.map((s) => (
+                              <td key={s.source_id} className={`p-2 text-center font-bold ${comp.matches[s.source_id] ? "text-emerald-600" : "text-red-400"}`}>
+                                {comp.matches[s.source_id] ? "✓" : "✕"}
+                              </td>
+                            ))}
+                          </tr>
                         ))}
-                      </tr>
-                    ))}
-                    {/* Overlap row */}
-                    <tr className="bg-[#DEEED9]/40 font-bold">
-                      <td className="p-2 text-[#2D5A27] sticky left-0 bg-[#DEEED9]/40">{isHi ? "ओवरलैप %" : "Overlap %"}</td>
-                      <td className="p-2"></td>
-                      <td className="p-2"></td>
-                      {investigationCase.comparison_matrix.evidence_sources.slice(0, 6).map((s) => {
-                        const ov = investigationCase.comparison_matrix!.overlap_scores[s.source_id] || 0;
-                        return (
-                          <td key={s.source_id} className={`p-2 text-center ${ov > 0.7 ? "text-red-700" : ov > 0.4 ? "text-amber-700" : "text-emerald-700"}`}>
-                            {(ov * 100).toFixed(0)}%
-                          </td>
-                        );
-                      })}
-                    </tr>
-                  </tbody>
-                </table>
+                        {/* Overlap row */}
+                        <tr className="bg-[#DEEED9]/40 font-bold">
+                          <td className="p-2 text-[#2D5A27] sticky left-0 bg-[#DEEED9]/40">{isHi ? "ओवरलैप %" : "Overlap %"}</td>
+                          <td className="p-2"></td>
+                          <td className="p-2"></td>
+                          {formulationSources.map((s) => {
+                            const ov = investigationCase.comparison_matrix!.overlap_scores[s.source_id] || 0;
+                            return (
+                              <td key={s.source_id} className={`p-2 text-center ${ov > 0.7 ? "text-red-700" : ov > 0.4 ? "text-amber-700" : "text-emerald-700"}`}>
+                                {(ov * 100).toFixed(0)}%
+                              </td>
+                            );
+                          })}
+                        </tr>
+                      </tbody>
+                    </table>
+                  );
+                })()}
               </div>
             </div>
           )}
@@ -449,12 +517,25 @@ export const InvestigationDashboard: React.FC<InvestigationDashboardProps> = ({
                 {/* Multi-factor confidence breakdown */}
                 {investigationCase.risk_assessment.confidence_breakdown && (
                   <div className="mt-3 pt-3 border-t border-black/5 grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px]">
-                    {Object.entries(investigationCase.risk_assessment.confidence_breakdown).map(([factor, score]) => (
-                      <div key={factor} className="bg-white/70 rounded-lg px-2.5 py-1.5 border border-black/5 shadow-xs">
-                        <span className="text-[#4B6354] text-[10px] block capitalize">{factor.replace("_", " ")}</span>
-                        <span className="font-bold text-[#2D5A27] text-xs">{(score * 100).toFixed(0)}%</span>
-                      </div>
-                    ))}
+                    {Object.entries(investigationCase.risk_assessment.confidence_breakdown).map(([factor, score]) => {
+                      const meta = CONFIDENCE_METRIC_META[factor] || {
+                        label: factor.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
+                        labelHi: factor.replace(/_/g, " "),
+                        desc: "Calibrated metric factor",
+                      };
+                      return (
+                        <div
+                          key={factor}
+                          className="bg-white/70 rounded-lg px-2.5 py-1.5 border border-black/5 shadow-xs flex flex-col justify-between"
+                          title={meta.desc}
+                        >
+                          <span className="text-[#4B6354] text-[10px] block font-medium truncate">
+                            {isHi ? meta.labelHi : meta.label}
+                          </span>
+                          <span className="font-bold text-[#2D5A27] text-xs">{(score * 100).toFixed(0)}%</span>
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -492,6 +573,18 @@ export const InvestigationDashboard: React.FC<InvestigationDashboardProps> = ({
                         </div>
                       </div>
                       <p className="text-[10px] leading-relaxed opacity-85">{dim.reasoning}</p>
+
+                      {dim.dimension === "regulatory_complexity" && (
+                        <div className="mt-2 pt-1.5 border-t border-black/10 text-[9px] opacity-90 font-medium text-[#2D5A27]">
+                          ℹ️ {isHi ? "D&C अधिनियम फॉर्म 25D नैदानिक छूट (पेटेंट धारा 3(p) नवीनता में मूल्यांकित)" : "D&C Act Form 25D clinical exemption (Patents Act §3(p) under Novelty Risk)"}
+                        </div>
+                      )}
+
+                      {dim.dimension === "novelty_risk" && dim.level === "CRITICAL" && (
+                        <div className="mt-2 pt-1.5 border-t border-black/10 text-[9px] opacity-90 font-medium text-red-800">
+                          ⚖️ {isHi ? "धारा 3(p) एवं 3(e) पेटेंट अपवर्जन बाधा" : "Section 3(p) & 3(e) statutory non-patentability bar"}
+                        </div>
+                      )}
                     </div>
                   );
                 })}

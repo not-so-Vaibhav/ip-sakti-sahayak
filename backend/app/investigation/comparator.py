@@ -14,6 +14,7 @@ from backend.app.investigation.models import (
     ComparisonMatrix,
     ElementComparison,
     EvidenceSource,
+    EvidenceSourceType,
     FormulationElement,
     StructuredFormulation,
 )
@@ -222,15 +223,24 @@ class FormulationComparator:
         all_user_elements = formulation.all_elements
         comparisons: List[ElementComparison] = []
 
+        # Formulation-bearing sources (TK, Patents, Research) that contain composition elements.
+        # Regulatory sources are governing legal authorities, not formulation recipes, so they
+        # are excluded from element-level matching to prevent misleading 0% recipe overlap.
+        recipe_sources = [
+            s for s in evidence_sources
+            if s.source_type not in (EvidenceSourceType.REGULATION, "regulation")
+        ]
+        active_sources = recipe_sources if recipe_sources else evidence_sources
+
         # Per-source match tracking for overlap calculation
         source_match_counts: Dict[str, int] = {
-            s.source_id: 0 for s in evidence_sources
+            s.source_id: 0 for s in active_sources
         }
 
         for user_elem in all_user_elements:
             matches: Dict[str, bool] = {}
 
-            for source in evidence_sources:
+            for source in active_sources:
                 found = False
                 for ev_elem in source.extracted_elements:
                     if self._elements_match(user_elem, ev_elem):
@@ -249,7 +259,7 @@ class FormulationComparator:
                 )
             )
 
-        # Calculate per-source overlap scores
+        # Calculate per-source overlap scores for recipe sources
         total_elements = max(len(all_user_elements), 1)
         overlap_scores: Dict[str, float] = {
             source_id: round(count / total_elements, 3)
@@ -258,13 +268,13 @@ class FormulationComparator:
 
         logger.info(
             f"Comparison matrix: {len(comparisons)} elements × "
-            f"{len(evidence_sources)} sources. "
+            f"{len(active_sources)} recipe sources. "
             f"Max overlap: {max(overlap_scores.values()) if overlap_scores else 0:.1%}"
         )
 
         return ComparisonMatrix(
             user_formulation=formulation,
-            evidence_sources=evidence_sources,
+            evidence_sources=active_sources,
             comparisons=comparisons,
             overlap_scores=overlap_scores,
         )
