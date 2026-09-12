@@ -98,6 +98,9 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
   let inOrderedList = false;
   let inUnorderedList = false;
   let currentListItems: React.ReactNode[] = [];
+  let inTable = false;
+  let tableHeader: string[] = [];
+  let tableRows: string[][] = [];
 
   const flushList = (keyPrefix: number) => {
     if (inOrderedList && currentListItems.length > 0) {
@@ -119,13 +122,107 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
     }
   };
 
+  const flushTable = (keyPrefix: number) => {
+    if (inTable && (tableHeader.length > 0 || tableRows.length > 0)) {
+      renderedBlocks.push(
+        <div
+          key={`table-${keyPrefix}`}
+          className="my-3.5 overflow-x-auto rounded-xl border border-[#D8EADB] bg-white print:border-gray-300 print:my-2.5 print:break-inside-avoid shadow-2xs"
+        >
+          <table className="w-full text-xs text-left border-collapse">
+            {tableHeader.length > 0 && (
+              <thead>
+                <tr className="bg-[#F3FFFB] border-b border-[#D8EADB] print:bg-gray-100 print:border-gray-300">
+                  {tableHeader.map((h, i) => (
+                    <th
+                      key={i}
+                      className="px-3.5 py-2.5 font-bold text-[#2D5A27] print:text-gray-900 border-r border-[#D8EADB]/60 last:border-r-0"
+                    >
+                      {parseInline(h)}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+            )}
+            <tbody className="divide-y divide-[#D8EADB]/50 print:divide-gray-200">
+              {tableRows.map((row, rIdx) => (
+                <tr
+                  key={rIdx}
+                  className={rIdx % 2 === 0 ? "bg-white" : "bg-[#F3FFFB]/30 print:bg-gray-50/60"}
+                >
+                  {row.map((cell, cIdx) => (
+                    <td
+                      key={cIdx}
+                      className="px-3.5 py-2 text-[#1E2D24] border-r border-[#D8EADB]/40 last:border-r-0 leading-relaxed"
+                    >
+                      {parseInline(cell)}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      );
+      tableHeader = [];
+      tableRows = [];
+      inTable = false;
+    }
+  };
+
+  const flushAll = (keyPrefix: number) => {
+    flushList(keyPrefix);
+    flushTable(keyPrefix);
+  };
+
   lines.forEach((line, index) => {
     const trimmed = line.trim();
 
     // Blank line
     if (!trimmed) {
-      flushList(index);
+      flushAll(index);
       return;
+    }
+
+    // Markdown Horizontal Rule (---, ***, ___)
+    if (/^(\-{3,}|\*{3,}|_{3,})$/.test(trimmed)) {
+      flushAll(index);
+      renderedBlocks.push(
+        <hr
+          key={`hr-${index}`}
+          className="my-4 border-t border-[#D8EADB] print:border-gray-300"
+        />
+      );
+      return;
+    }
+
+    // Markdown Table Row (| col1 | col2 |)
+    if (trimmed.startsWith("|") && trimmed.endsWith("|")) {
+      flushList(index);
+      const cells = trimmed
+        .slice(1, -1)
+        .split("|")
+        .map((c) => c.trim());
+
+      // Check if it is a separator row (|---|---|)
+      const isSeparator = cells.every((c) => /^:?-+:?$/.test(c));
+      if (isSeparator) {
+        // Just marks that the preceding row was the table header
+        return;
+      }
+
+      if (!inTable) {
+        inTable = true;
+        tableHeader = cells;
+      } else {
+        tableRows.push(cells);
+      }
+      return;
+    }
+
+    // If not a table row, flush any open table
+    if (inTable) {
+      flushTable(index);
     }
 
     // Heading #, ##, ###
@@ -134,9 +231,9 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
       renderedBlocks.push(
         <h4
           key={`h4-${index}`}
-          className="text-base sm:text-lg font-serif-luxury font-bold text-[#1E2D24] mt-5 mb-2 flex items-center gap-2"
+          className="text-base sm:text-lg font-serif-luxury font-bold text-[#1E2D24] mt-5 mb-2 flex items-center gap-2 print:text-black print:mt-3"
         >
-          <span className="w-2 h-2 rounded-full bg-[#7FB53D]" />
+          <span className="w-2 h-2 rounded-full bg-[#7FB53D] print:hidden" />
           {parseInline(trimmed.replace(/^###\s+/, ""))}
         </h4>
       );
@@ -148,10 +245,23 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
       renderedBlocks.push(
         <h3
           key={`h3-${index}`}
-          className="text-lg sm:text-xl font-serif-luxury font-bold text-[#1E2D24] mt-6 mb-3 border-b border-[#DEEED9] pb-1.5"
+          className="text-lg sm:text-xl font-serif-luxury font-bold text-[#1E2D24] mt-6 mb-3 border-b border-[#DEEED9] pb-1.5 print:text-black print:border-gray-300 print:mt-4"
         >
           {parseInline(trimmed.replace(/^##\s+/, ""))}
         </h3>
+      );
+      return;
+    }
+
+    if (trimmed.startsWith("# ")) {
+      flushList(index);
+      renderedBlocks.push(
+        <h2
+          key={`h2-${index}`}
+          className="text-xl sm:text-2xl font-serif-luxury font-bold text-[#1E2D24] mt-7 mb-3.5 border-b-2 border-[#7FB53D] pb-2 print:text-black print:border-gray-400 print:mt-4"
+        >
+          {parseInline(trimmed.replace(/^#\s+/, ""))}
+        </h2>
       );
       return;
     }
@@ -161,9 +271,9 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
     if (standaloneHeaderMatch) {
       flushList(index);
       renderedBlocks.push(
-        <div key={`section-h-${index}`} className="mt-4 mb-2">
-          <span className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-[#2D5A27] bg-[#DEEED9] px-3 py-1 rounded-full border border-[#7FB53D]/30 inline-flex items-center gap-1.5 shadow-2xs">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#7FB53D]" />
+        <div key={`section-h-${index}`} className="mt-4 mb-2 print:my-2">
+          <span className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-[#2D5A27] bg-[#DEEED9] px-3 py-1 rounded-full border border-[#7FB53D]/30 inline-flex items-center gap-1.5 shadow-2xs print:border-gray-300 print:bg-gray-100 print:text-black">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#7FB53D] print:hidden" />
             {standaloneHeaderMatch[1]}
           </span>
         </div>
@@ -177,7 +287,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
       renderedBlocks.push(
         <div
           key={`quote-${index}`}
-          className="parchment-box p-4 rounded-2xl my-3.5 text-xs sm:text-sm leading-relaxed border-l-4 border-[#7FB53D] text-[#2D5A27] italic shadow-xs"
+          className="parchment-box p-4 rounded-2xl my-3.5 text-xs sm:text-sm leading-relaxed border-l-4 border-[#7FB53D] text-[#2D5A27] italic shadow-xs print:bg-gray-50 print:border-gray-400 print:text-gray-900 print:my-2"
         >
           {parseInline(trimmed.replace(/^>\s+/, ""))}
         </div>
@@ -195,7 +305,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
 
       currentListItems.push(
         <li key={`ol-item-${index}`} className="flex items-start gap-2.5">
-          <span className="w-5 h-5 rounded-full bg-[#DEEED9] text-[#2D5A27] text-xs font-extrabold flex items-center justify-center shrink-0 mt-0.5 border border-[#7FB53D]/30 shadow-2xs">
+          <span className="w-5 h-5 rounded-full bg-[#DEEED9] text-[#2D5A27] text-xs font-extrabold flex items-center justify-center shrink-0 mt-0.5 border border-[#7FB53D]/30 shadow-2xs print:border-gray-300 print:bg-gray-100 print:text-black">
             {num}
           </span>
           <div className="flex-1 text-xs sm:text-sm leading-relaxed text-[#1E2D24]">
@@ -215,7 +325,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
 
       currentListItems.push(
         <li key={`ul-item-${index}`} className="flex items-start gap-2.5 pl-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#7FB53D] shrink-0 mt-2" />
+          <span className="w-1.5 h-1.5 rounded-full bg-[#7FB53D] shrink-0 mt-2 print:bg-gray-700" />
           <div className="flex-1 text-xs sm:text-sm leading-relaxed text-[#1E2D24]">
             {parseInline(itemText)}
           </div>
@@ -229,14 +339,14 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
     renderedBlocks.push(
       <p
         key={`p-${index}`}
-        className="text-xs sm:text-sm text-[#1E2D24] leading-relaxed my-2.5"
+        className="text-xs sm:text-sm text-[#1E2D24] leading-relaxed my-2.5 print:my-1.5"
       >
         {parseInline(trimmed)}
       </p>
     );
   });
 
-  flushList(lines.length);
+  flushAll(lines.length);
 
   return <div className="space-y-1">{renderedBlocks}</div>;
 };

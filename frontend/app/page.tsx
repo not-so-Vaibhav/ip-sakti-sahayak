@@ -66,7 +66,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F3FFFB] text-[#1E2D24] selection:bg-[#DEEED9] selection:text-[#2D5A27] font-sans">
+    <div className="min-h-screen flex flex-col bg-[#F6FAF5] text-[#1E2D24] selection:bg-[#DEEED9] selection:text-[#2D5A27] font-sans">
       {/* App Header & Navigation */}
       <Header
         language={language}
@@ -79,7 +79,7 @@ export default function Home() {
       />
 
       {/* Main Tab Content */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 flex flex-col">
+      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 print:p-0 print:max-w-none flex flex-col">
         {activeTab === "landing" && (
           <LandingHero
             language={language}
@@ -140,7 +140,7 @@ export default function Home() {
       />
 
       {/* Standing Footer with Legal Disclaimer */}
-      <footer className="bg-white/80 border-t border-[#D8EADB] py-8 px-4 text-center text-xs text-[#4B6354] space-y-3">
+      <footer className="bg-white/80 border-t border-[#D8EADB] py-8 px-4 text-center text-xs text-[#4B6354] space-y-3 print:hidden">
         <div className="max-w-4xl mx-auto flex flex-wrap items-center justify-center gap-3 font-semibold text-[#2D5A27]">
           <div className="flex items-center gap-1.5">
             <Leaf className="w-3.5 h-3.5 text-[#7FB53D]" />

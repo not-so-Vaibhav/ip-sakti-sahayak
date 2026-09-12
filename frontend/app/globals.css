@@ -171,3 +171,100 @@
   background: #7FB53D;
 }
 
+/* ==========================================================================
+   OFFICIAL PRINT / PDF DOSSIER STYLESHEET
+   ========================================================================== */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 12mm 12mm 14mm 12mm;
+  }
+
+  *,
+  *::before,
+  *::after {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  html,
+  body {
+    background: #ffffff !important;
+    color: #111827 !important;
+    font-size: 10.5pt !important;
+    line-height: 1.45 !important;
+    width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Full container width on paper */
+  main,
+  .max-w-7xl,
+  .max-w-5xl,
+  .max-w-4xl {
+    max-width: 100% !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Structural elements to avoid breaking across page boundaries */
+  .ayur-card,
+  .print-avoid-break,
+  .break-inside-avoid,
+  table,
+  tbody,
+  tr,
+  blockquote,
+  .parchment-box,
+  .risk-card,
+  .dimension-card {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  /* Headings must never be orphaned at the bottom of a printed page */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    break-after: avoid !important;
+    page-break-after: avoid !important;
+    color: #1E2D24 !important;
+  }
+
+  /* Hide interactive controls, navigation, inputs, and unneeded widgets */
+  header,
+  nav,
+  footer,
+  button,
+  input,
+  select,
+  textarea,
+  .no-print,
+  .print-hidden {
+    display: none !important;
+  }
+
+  /* Print link handling */
+  a {
+    text-decoration: underline !important;
+    color: #2D5A27 !important;
+  }
+
+  /* Clean print borders */
+  .border,
+  .border-t,
+  .border-b,
+  .border-l,
+  .border-r {
+    border-color: #D1D5DB !important;
+  }
+}
+
