@@ -104,5 +104,5 @@ class MultilingualEmbedder:
         return vec.tolist()
 
 
-def get_default_embedder(use_mock: bool = False) -> MultilingualEmbedder:
+def get_default_embedder(use_mock: Optional[bool] = None) -> MultilingualEmbedder:
     return MultilingualEmbedder(use_mock=use_mock)

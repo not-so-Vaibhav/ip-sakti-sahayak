@@ -22,7 +22,7 @@ class Settings(BaseSettings):
     # Embeddings
     # Production / Demo default: sentence-transformers/all-MiniLM-L6-v2 (fast, lightweight, fits Render free tier)
     embedding_model_name: str = "sentence-transformers/all-MiniLM-L6-v2"
-    embedding_use_mock: bool = False
+    embedding_use_mock: bool = True
 
     # Dual-Provider LLM Configuration (Gemini 2.5 Flash Primary + Groq Fallback + Optional Local Ollama)
     llm_provider_priority: Union[List[str], str] = ["gemini", "groq"]
