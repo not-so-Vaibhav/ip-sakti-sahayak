@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { translations } from "@/lib/translations";
-import { Scale, Globe, CheckCircle, Leaf } from "lucide-react";
+import { Scale, Globe, CheckCircle, Leaf, ChevronDown } from "lucide-react";
 
 interface RegimeComparatorProps {
   language?: "en" | "hi";
@@ -92,9 +92,33 @@ export const RegimeComparator: React.FC<RegimeComparatorProps> = ({ language = "
         </p>
       </div>
 
-      {/* Topic Tabs */}
-      <div className="w-full max-w-full overflow-hidden mb-6 sm:mb-8">
-        <div className="flex overflow-x-auto gap-2 sm:gap-2.5 pb-2 justify-start sm:justify-center no-scrollbar w-full px-1">
+      {/* Mobile Dropdown Menu (sm:hidden) */}
+      <div className="sm:hidden mb-5 w-full">
+        <label className="block text-[11px] font-bold text-[#2D5A27] uppercase tracking-wider mb-1.5 px-1 flex items-center gap-1.5">
+          <Leaf className="w-3.5 h-3.5 text-[#7FB53D]" />
+          <span>{language === "hi" ? "तुलना विषय चुनें:" : "Select Comparison Topic:"}</span>
+        </label>
+        <div className="relative w-full">
+          <select
+            value={selectedTopic}
+            onChange={(e) => setSelectedTopic(Number(e.target.value))}
+            className="w-full appearance-none bg-white text-[#1E2D24] font-bold text-xs pl-3.5 pr-10 py-3 rounded-2xl border border-[#7FB53D]/40 focus:outline-none focus:ring-2 focus:ring-[#7FB53D] shadow-xs cursor-pointer"
+          >
+            {REGIME_DATA.map((row, idx) => (
+              <option key={idx} value={idx}>
+                {language === "hi" ? row.topicHi : row.topic}
+              </option>
+            ))}
+          </select>
+          <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-[#2D5A27]">
+            <ChevronDown className="w-4 h-4" />
+          </div>
+        </div>
+      </div>
+
+      {/* Desktop Topic Tabs (hidden sm:block) */}
+      <div className="hidden sm:block w-full max-w-full overflow-hidden mb-6 sm:mb-8">
+        <div className="flex flex-wrap gap-2 sm:gap-2.5 pb-2 justify-center w-full px-1">
           {REGIME_DATA.map((row, idx) => (
             <button
               key={idx}
