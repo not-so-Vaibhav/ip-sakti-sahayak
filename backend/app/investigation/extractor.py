@@ -13,6 +13,7 @@ import httpx
 
 from backend.app.config import settings
 from backend.app.investigation.models import FormulationElement, StructuredFormulation
+from backend.app.llm.client import llm_client
 
 logger = logging.getLogger(__name__)
 
@@ -69,29 +70,18 @@ class FormulationExtractor:
         model: Optional[str] = None,
         api_key: Optional[str] = None,
     ):
-        self.base_url = (base_url or settings.ollama_base_url).rstrip("/")
-        self.model = model or settings.ollama_model
-        self.api_key = api_key or settings.ollama_api_key
+        self.base_url = (base_url or settings.gemini_base_url).rstrip("/")
+        self.model = model or settings.gemini_model
+        self.api_key = api_key or settings.gemini_api_key or ""
 
     def _call_llm(self, messages: List[Dict[str, str]]) -> str:
-        """Calls the LLM endpoint (same pattern as generator.py)."""
-        endpoint = f"{self.base_url}/chat/completions"
-        headers = {
-            "Authorization": f"Bearer {self.api_key}",
-            "Content-Type": "application/json",
-        }
-        payload = {
-            "model": self.model,
-            "messages": messages,
-            "temperature": 0.05,
-            "max_tokens": 800,
-        }
-        timeout_sec = getattr(settings, "investigation_llm_timeout", 45.0)
-        with httpx.Client(timeout=timeout_sec) as client:
-            res = client.post(endpoint, json=payload, headers=headers)
-            res.raise_for_status()
-            data = res.json()
-            return data["choices"][0]["message"]["content"]
+        """Calls the dual-provider LLM client with automatic rate-limit failover."""
+        return llm_client.call_chat_completions(
+            messages=messages,
+            temperature=0.05,
+            max_tokens=800,
+            timeout_seconds=getattr(settings, "investigation_llm_timeout", 45.0),
+        )
 
     def _parse_llm_json(self, raw: str) -> Optional[Dict]:
         """Attempts to parse LLM output as JSON, stripping markdown fences if present."""

@@ -186,7 +186,19 @@ export interface InvestigateResponse {
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
 
 export const api = {
-  async checkHealth(): Promise<{ status: string; ollama_model?: string }> {
+  async checkHealth(): Promise<{
+    status: string;
+    app_env?: string;
+    llm?: {
+      provider_priority?: string[];
+      active_primary_provider?: string;
+      last_provider_used?: string;
+      last_successful_call?: string;
+      fallback_triggered_count?: number;
+      providers?: Record<string, any>;
+    };
+    [key: string]: any;
+  }> {
     try {
       const res = await fetch(`${BACKEND_URL}/health`, { method: "GET" });
       if (!res.ok) throw new Error(`Health check failed: ${res.status}`);

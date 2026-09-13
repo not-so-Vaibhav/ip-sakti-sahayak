@@ -6,7 +6,8 @@
 [![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688.svg?logo=fastapi)](https://fastapi.tiangolo.com)
 [![Next.js](https://img.shields.io/badge/Frontend-Next.js%2016-000000.svg?logo=next.js)](https://nextjs.org)
 [![Tailwind CSS](https://img.shields.io/badge/TailwindCSS-v4-38B2AC.svg?logo=tailwind-css)](https://tailwindcss.com)
-[![Ollama](https://img.shields.io/badge/AI-Ollama%20%7C%20Local%20LLM-black.svg)](https://ollama.com)
+[![Gemini](https://img.shields.io/badge/Primary%20LLM-Gemini%202.5%20Flash-4285F4.svg?logo=google)](https://aistudio.google.com/)
+[![Groq](https://img.shields.io/badge/Fallback%20LLM-Groq%20LLaMA%203.3-F55036.svg)](https://groq.com/)
 [![Bilingual](https://img.shields.io/badge/Language-English%20%7C%20%E0%A4%B9%E0%A4%BF%E0%A4%82%E0%A4%A6%E0%A4%80-orange.svg)](#-bilingual-support-en--हिंदी)
 
 ---
@@ -16,6 +17,11 @@
 **IP-SAKTI Sahayak** is an AI-powered regulatory intelligence and intellectual property guidance platform designed specifically for the Ayurvedic and botanical medicine domain. 
 
 Unlike generic black-box LLMs that frequently hallucinate non-existent patent sections or outdated rules, Sahayak enforces a **Strict Zero-Hallucination Statutory Firewall**. Every answer is strictly grounded with verbatim citations from official Indian Acts, Central Gazette notifications, and First-Schedule classical Ayurvedic treatises.
+
+To guarantee zero-downtime deployment on **100% Free Tiers**, Sahayak implements a **Dual-Provider Rate-Limit-Resilient Architecture**:
+* **Primary LLM**: Google Gemini 2.5 Flash via Google AI Studio API.
+* **Automatic Failover**: Groq (`llama-3.3-70b-versatile`) on HTTP 429 rate limits or timeouts.
+* **Local Offline Option**: Ollama supported for completely local dev environments.
 
 ---
 
@@ -74,8 +80,8 @@ Unlike generic black-box LLMs that frequently hallucinate non-existent patent se
 │  └───────────┬───────────┘  └───────────────────────────────────────┘  │
 │              ▼                                                         │
 │  ┌──────────────────────────────────────────────────────────────────┐  │
-│  │ Local LLM (Ollama / Qwen / LLaMA) + Zero-Hallucination Firewall  │  │
-│  │ (Multi-turn retry loop & citation integrity validation)          │  │
+│  │ Dual-Provider LLM Client (Gemini 2.5 Flash + Groq Fallback)      │  │
+│  │ (Auto-failover on 429 rate limits + citation integrity firewall) │  │
 │  └──────────────────────────────────────────────────────────────────┘  │
 └───────────────────────────────────┬────────────────────────────────────┘
                                     │
@@ -95,7 +101,7 @@ Unlike generic black-box LLMs that frequently hallucinate non-existent patent se
 ### Prerequisites
 * **Python 3.11+**
 * **Node.js 18+** & **npm**
-* **Ollama** (for local LLM inference)
+* **Free API Key** from [Google AI Studio](https://aistudio.google.com/) or [Groq Console](https://console.groq.com/keys) (No paid API key required)
 
 ---
 
@@ -122,7 +128,13 @@ cd Sahayak
    ```bash
    cp .env.example .env
    ```
-4. Start the FastAPI backend server:
+4. Add your free API key(s) in `.env`:
+   ```env
+   GEMINI_API_KEY=your_gemini_api_key_here
+   # Optional fallback:
+   GROQ_API_KEY=your_groq_api_key_here
+   ```
+5. Start the FastAPI backend server:
    ```bash
    PYTHONPATH=.. uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
    ```
@@ -145,19 +157,6 @@ cd Sahayak
    npm run dev
    ```
    *Frontend will run at: [http://localhost:3000](http://localhost:3000)*
-
----
-
-### Step 4: Ollama Local AI Setup
-1. Install and start [Ollama](https://ollama.com):
-   ```bash
-   ollama serve
-   ```
-2. Pull the recommended lightweight local model:
-   ```bash
-   ollama pull qwen2.5:3b
-   # or: ollama pull llama3.2:latest
-   ```
 
 ---
 

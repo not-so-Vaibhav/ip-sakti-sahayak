@@ -50,10 +50,7 @@ If something isn't listed here, don't build it yet — check with the team first
 - Relational DB: Supabase (Postgres) — trimmed schema, see `schema_mvp.sql`
 - Embeddings: self-hosted multilingual model (multilingual-e5-large or
   similar) — no external embedding API
-- Generation LLM: self-hosted open-weight model via Ollama (local dev,
-  small model e.g. Qwen3 4B) and a cloud GPU (Colab/Kaggle) for the
-  full-size model (Qwen3 8B/14B or Llama 3.1 8B) used in the real
-  pipeline/demo — no OpenAI/Anthropic/Google API calls anywhere
+- Generation LLM: Dual-provider architecture (Primary: Google Gemini 2.5 Flash, Fallback: Groq LLaMA 3.3 70B, Local dev: Ollama) with zero-cost free-tier deployment and automatic rate-limit failover
 - Frontend: Next.js + Tailwind CSS
 
 ## Definition of done for the hackathon demo

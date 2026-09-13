@@ -2,7 +2,7 @@
 
 import os
 from pathlib import Path
-from typing import Optional
+from typing import List, Optional, Union
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -24,10 +24,30 @@ class Settings(BaseSettings):
     # Demo/Prod: intfloat/multilingual-e5-large (1024-dim)
     embedding_model_name: str = "intfloat/multilingual-e5-base"
 
-    # Local LLM Generation via Ollama
+    # Dual-Provider LLM Configuration (Gemini 2.5 Flash Primary + Groq Fallback + Optional Local Ollama)
+    llm_provider_priority: Union[List[str], str] = ["gemini", "groq"]
+
+    # Primary Provider: Google Gemini (Free tier via Google AI Studio)
+    gemini_api_key: Optional[str] = None
+    gemini_model: str = "gemini-3.6-flash"
+    gemini_base_url: str = "https://generativelanguage.googleapis.com/v1beta/openai"
+
+    # Fallback Provider: Groq (Free tier via Groq Console)
+    groq_api_key: Optional[str] = None
+    groq_model: str = "qwen/qwen3.8-27b"
+    groq_base_url: str = "https://api.groq.com/openai/v1"
+
+    # Optional Local LLM Generation via Ollama
     ollama_base_url: str = "http://localhost:11434/v1"
     ollama_model: str = "qwen2.5:1.5b"
     ollama_api_key: str = "ollama"
+
+    @property
+    def provider_priority_list(self) -> List[str]:
+        """Returns provider priority as a clean list of strings."""
+        if isinstance(self.llm_provider_priority, str):
+            return [p.strip().lower() for p in self.llm_provider_priority.split(",") if p.strip()]
+        return [p.strip().lower() for p in self.llm_provider_priority if p.strip()]
 
     # Tunable Retrieval & Confidence Parameters
     confidence_threshold: float = 0.50
@@ -57,7 +77,10 @@ class Settings(BaseSettings):
     debug: bool = True
 
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=(
+            str(Path(__file__).resolve().parent.parent / ".env"),
+            ".env",
+        ),
         env_file_encoding="utf-8",
         extra="ignore",
     )

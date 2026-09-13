@@ -17,10 +17,6 @@ volumes:
 #   docker compose up -d
 #   Qdrant dashboard: http://localhost:6333/dashboard
 #
-# Supabase is NOT included here — it's a managed cloud service.
+# Supabase is a managed cloud service (or local instance).
 # Create a free project at https://supabase.com, then run schema_mvp.sql
-# in its SQL editor. Put the resulting connection string in your .env.
-#
-# Ollama (local LLM for dev) is also not containerized here — install
-# natively on macOS for best M1 performance: https://ollama.com
-#   ollama pull qwen3:4b
+# in its SQL editor. Put the connection string in your .env.

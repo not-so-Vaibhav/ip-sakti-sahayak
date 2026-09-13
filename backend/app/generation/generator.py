@@ -11,6 +11,7 @@ import httpx
 
 from backend.app.config import settings
 from backend.app.generation.models import CitationItem, QueryResponse
+from backend.app.llm.client import llm_client
 from backend.app.retrieval.models import RetrievedChunk
 
 logger = logging.getLogger(__name__)
@@ -74,9 +75,9 @@ class CitationConstrainedGenerator:
         max_retries: int = 2,
         llm_callable: Optional[Callable[[List[Dict[str, str]]], str]] = None,
     ):
-        self.base_url = (base_url or settings.ollama_base_url).rstrip("/")
-        self.model = model or settings.ollama_model
-        self.api_key = api_key or settings.ollama_api_key
+        self.base_url = (base_url or settings.gemini_base_url).rstrip("/")
+        self.model = model or settings.gemini_model
+        self.api_key = api_key or settings.gemini_api_key or ""
         self.max_retries = max_retries
         self._custom_llm = llm_callable
 
@@ -155,31 +156,18 @@ class CitationConstrainedGenerator:
         return is_valid, valid_ids, invalid_ids, augmented_text
 
     def _call_llm_api(self, messages: List[Dict[str, str]]) -> str:
-        """Executes LLM chat completion against Ollama / OpenAI-compatible endpoint."""
+        """Executes LLM chat completion using dual-provider LLM client with automatic rate-limit failover."""
         if self._custom_llm is not None:
             return self._custom_llm(messages)
 
-        endpoint = f"{self.base_url}/chat/completions"
-        headers = {"Authorization": f"Bearer {self.api_key}", "Content-Type": "application/json"}
-        payload = {
-            "model": self.model,
-            "messages": messages,
-            "temperature": float(getattr(settings, "generation_temperature", 0.1)),
-            "presence_penalty": float(getattr(settings, "generation_presence_penalty", 0.0)),
-            "frequency_penalty": float(getattr(settings, "generation_frequency_penalty", 0.0)),
-            "max_tokens": 600,
-        }
-
-        timeout_sec = float(getattr(settings, "generation_timeout_seconds", 35.0))
-        try:
-            with httpx.Client(timeout=timeout_sec) as client:
-                res = client.post(endpoint, json=payload, headers=headers)
-                res.raise_for_status()
-                data = res.json()
-                return data["choices"][0]["message"]["content"]
-        except Exception as e:
-            logger.error(f"Error calling LLM at {endpoint}: {e}")
-            raise
+        return llm_client.call_chat_completions(
+            messages=messages,
+            temperature=float(getattr(settings, "generation_temperature", 0.1)),
+            presence_penalty=float(getattr(settings, "generation_presence_penalty", 0.0)),
+            frequency_penalty=float(getattr(settings, "generation_frequency_penalty", 0.0)),
+            max_tokens=600,
+            timeout_seconds=float(getattr(settings, "generation_timeout_seconds", 35.0)),
+        )
 
     def generate_answer(
         self,

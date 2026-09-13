@@ -139,7 +139,15 @@ def setup_corpus():
 
 def run_benchmark(model_name: Optional[str] = None):
     import sys
-    target_model = model_name or (sys.argv[1] if len(sys.argv) > 1 else settings.ollama_model)
+    target_model = model_name or (
+        sys.argv[1]
+        if len(sys.argv) > 1
+        else (
+            settings.gemini_model
+            if settings.gemini_api_key
+            else (settings.groq_model if settings.groq_api_key else settings.ollama_model)
+        )
+    )
     setup_corpus()
     
     # Configure query route generator to use target model
@@ -149,7 +157,7 @@ def run_benchmark(model_name: Optional[str] = None):
     client = TestClient(app)
 
     print("\n" + "=" * 80, flush=True)
-    print(f"RUNNING LIVE EMPIRICAL BENCHMARK (Model: {target_model} @ {settings.ollama_base_url})", flush=True)
+    print(f"RUNNING LIVE EMPIRICAL BENCHMARK (Model: {target_model})", flush=True)
     print("=" * 80 + "\n", flush=True)
 
     results: List[Dict[str, Any]] = []

@@ -4,11 +4,11 @@ Generates risk profiles across 5 dimensions using comparison matrix data,
 regulatory classification, and LLM-generated reasoning.
 """
 
+import json
 import logging
 import math
+import re
 from typing import Dict, List, Optional, Tuple
-
-import httpx
 
 from backend.app.config import settings
 from backend.app.investigation.models import (
@@ -20,6 +20,7 @@ from backend.app.investigation.models import (
     RiskDimensionType,
     RiskLevel,
 )
+from backend.app.llm.client import llm_client
 
 logger = logging.getLogger(__name__)
 
@@ -82,12 +83,14 @@ ASSIGNED RISK LEVELS:
 4. ABS Compliance: {abs_level} ({abs_score:.0%}) [Low = Statutorily Exempt under Sec 40 NTC]
 5. Prior Art Exposure: {prior_level} ({prior_score:.0%})
 
-OUTPUT FORMAT: Return exactly 5 lines, one per dimension, with reasoning that strictly justifies the assigned risk level:
-NOVELTY: <reasoning>
-TK_OVERLAP: <reasoning>
-REGULATORY: <reasoning>
-ABS: <reasoning>
-PRIOR_ART: <reasoning>"""
+OUTPUT FORMAT: Return ONLY a valid JSON object with exactly these 5 keys (no markdown formatting, no code blocks):
+{{
+  "NOVELTY": "<reasoning matching assigned novelty risk level>",
+  "TK_OVERLAP": "<reasoning matching assigned TK overlap level>",
+  "REGULATORY": "<reasoning matching assigned regulatory complexity level>",
+  "ABS": "<reasoning matching assigned ABS compliance level>",
+  "PRIOR_ART": "<reasoning matching assigned prior art exposure level>"
+}}"""
 
 
 def _score_to_level(score: float) -> RiskLevel:
@@ -105,33 +108,31 @@ def _score_to_level(score: float) -> RiskLevel:
 class RiskAssessor:
     """Generates multi-dimensional risk assessments from investigation evidence."""
 
-    def __init__(self):
-        self.base_url = settings.ollama_base_url.rstrip("/")
-        self.model = settings.ollama_model
-        self.api_key = settings.ollama_api_key
+    def __init__(
+        self,
+        base_url: Optional[str] = None,
+        model: Optional[str] = None,
+        api_key: Optional[str] = None,
+    ):
+        self.base_url = (base_url or settings.gemini_base_url).rstrip("/")
+        self.model = model or settings.gemini_model
+        self.api_key = api_key or settings.gemini_api_key or ""
 
     def _call_llm(self, prompt: str) -> str:
-        """Call LLM for reasoning generation."""
-        endpoint = f"{self.base_url}/chat/completions"
-        headers = {
-            "Authorization": f"Bearer {self.api_key}",
-            "Content-Type": "application/json",
-        }
-        payload = {
-            "model": self.model,
-            "messages": [
-                {"role": "system", "content": "You are an IP risk analyst for Ayurvedic formulations."},
-                {"role": "user", "content": prompt},
-            ],
-            "temperature": 0.15,
-            "max_tokens": 600,
-        }
-        timeout = getattr(settings, "investigation_llm_timeout", 45.0)
+        """Call LLM for reasoning generation using dual-provider LLM client."""
         try:
-            with httpx.Client(timeout=timeout) as client:
-                res = client.post(endpoint, json=payload, headers=headers)
-                res.raise_for_status()
-                return res.json()["choices"][0]["message"]["content"]
+            return llm_client.call_chat_completions(
+                messages=[
+                    {
+                        "role": "system",
+                        "content": "You are an IP risk analyst for Ayurvedic formulations. You must output valid JSON.",
+                    },
+                    {"role": "user", "content": prompt},
+                ],
+                temperature=0.15,
+                max_tokens=600,
+                timeout_seconds=getattr(settings, "investigation_llm_timeout", 45.0),
+            )
         except Exception as e:
             logger.warning(f"Risk reasoning LLM call failed: {e}")
             return ""
@@ -317,13 +318,42 @@ class RiskAssessor:
             )
             raw = self._call_llm(prompt)
 
-            # Parse structured output
-            for line in raw.strip().split("\n"):
-                line = line.strip()
-                for prefix in ["NOVELTY:", "TK_OVERLAP:", "REGULATORY:", "ABS:", "PRIOR_ART:"]:
-                    if line.upper().startswith(prefix):
-                        key = prefix.rstrip(":")
-                        reasoning_map[key] = line[len(prefix):].strip()
+            # Parse single-call structured JSON output
+            cleaned_raw = (raw or "").strip()
+            if cleaned_raw.startswith("```"):
+                lines = [l for l in cleaned_raw.split("\n") if not l.strip().startswith("```")]
+                cleaned_raw = "\n".join(lines).strip()
+
+            try:
+                parsed_json = json.loads(cleaned_raw)
+                if isinstance(parsed_json, dict):
+                    for k, v in parsed_json.items():
+                        norm_key = k.upper().replace(" ", "_").strip()
+                        if isinstance(v, str) and v.strip():
+                            reasoning_map[norm_key] = v.strip()
+            except Exception:
+                # Try finding JSON object in text
+                json_match = re.search(r"\{[\s\S]*\}", cleaned_raw)
+                if json_match:
+                    try:
+                        parsed_json = json.loads(json_match.group(0))
+                        if isinstance(parsed_json, dict):
+                            for k, v in parsed_json.items():
+                                norm_key = k.upper().replace(" ", "_").strip()
+                                if isinstance(v, str) and v.strip():
+                                    reasoning_map[norm_key] = v.strip()
+                    except Exception:
+                        pass
+
+            # Fallback line-by-line parser if JSON did not populate all dimensions
+            if len(reasoning_map) < 5:
+                for line in (raw or "").strip().split("\n"):
+                    line = line.strip()
+                    for prefix in ["NOVELTY:", "TK_OVERLAP:", "REGULATORY:", "ABS:", "PRIOR_ART:"]:
+                        if line.upper().startswith(prefix):
+                            key = prefix.rstrip(":")
+                            if key not in reasoning_map or not reasoning_map[key]:
+                                reasoning_map[key] = line[len(prefix):].strip()
         except Exception as e:
             logger.warning(f"Failed to generate risk reasoning: {e}")
 
