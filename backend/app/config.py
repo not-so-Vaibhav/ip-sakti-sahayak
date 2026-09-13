@@ -20,9 +20,9 @@ class Settings(BaseSettings):
     database_url: Optional[str] = None
 
     # Embeddings
-    # Local dev default: intfloat/multilingual-e5-base (768-dim)
-    # Demo/Prod: intfloat/multilingual-e5-large (1024-dim)
-    embedding_model_name: str = "intfloat/multilingual-e5-base"
+    # Production / Demo default: sentence-transformers/all-MiniLM-L6-v2 (fast, lightweight, fits Render free tier)
+    embedding_model_name: str = "sentence-transformers/all-MiniLM-L6-v2"
+    embedding_use_mock: bool = False
 
     # Dual-Provider LLM Configuration (Gemini 2.5 Flash Primary + Groq Fallback + Optional Local Ollama)
     llm_provider_priority: Union[List[str], str] = ["gemini", "groq"]

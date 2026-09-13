@@ -14,11 +14,11 @@ logger = logging.getLogger(__name__)
 
 
 class MultilingualEmbedder:
-    """Embedder using local sentence-transformers models."""
+    """Embedder using local sentence-transformers models or deterministic fallback."""
 
-    def __init__(self, model_name: Optional[str] = None, use_mock: bool = False):
+    def __init__(self, model_name: Optional[str] = None, use_mock: Optional[bool] = None):
         self.model_name = model_name or settings.embedding_model_name
-        self.use_mock = use_mock
+        self.use_mock = use_mock if use_mock is not None else (settings.embedding_use_mock or self.model_name.lower() == "mock")
         self._model = None
         self._dimension: Optional[int] = self._infer_dimension(self.model_name)
 
