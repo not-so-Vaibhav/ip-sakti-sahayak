@@ -182,13 +182,15 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   return (
     <div className="max-w-4xl mx-auto py-4 sm:py-6 px-3 sm:px-6 flex flex-col h-full space-y-4">
       {/* Category Filter & Scope Banner */}
-      <div className="ayur-card p-3.5 sm:p-4 rounded-2xl flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <Filter className="w-4 h-4 text-[#7FB53D]" />
-          <span className="text-xs font-bold text-[#1E2D24] uppercase tracking-wide">
-            {t.categoryFilterLabel}
-          </span>
-          <div className="relative inline-block">
+      <div className="ayur-card p-3 sm:p-4 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 w-full">
+        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+          <div className="flex items-center gap-1.5 shrink-0">
+            <Filter className="w-3.5 h-3.5 text-[#7FB53D]" />
+            <span className="text-[11px] sm:text-xs font-bold text-[#1E2D24] uppercase tracking-wide">
+              {t.categoryFilterLabel}
+            </span>
+          </div>
+          <div className="relative flex-1 sm:flex-none min-w-[180px]">
             <select
               value={selectedCategory}
               onChange={(e) => {
@@ -196,7 +198,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
                 setSelectedCategory(cat);
                 onSelectCategory(cat);
               }}
-              className="appearance-none bg-[#DEEED9]/60 hover:bg-[#DEEED9] text-[#2D5A27] font-bold text-xs pl-3 pr-8 py-1.5 rounded-xl border border-[#7FB53D]/30 focus:outline-none focus:ring-2 focus:ring-[#7FB53D] cursor-pointer transition-colors"
+              className="w-full appearance-none bg-[#DEEED9]/60 hover:bg-[#DEEED9] text-[#2D5A27] font-bold text-xs pl-3 pr-8 py-1.5 rounded-xl border border-[#7FB53D]/30 focus:outline-none focus:ring-2 focus:ring-[#7FB53D] cursor-pointer transition-colors"
             >
               {Object.entries(CATEGORY_NAMES).map(([key, name]) => (
                 <option key={key} value={key}>
@@ -208,7 +210,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
           </div>
         </div>
 
-        <div className="flex items-center gap-2 text-xs text-[#4B6354]">
+        <div className="flex items-center gap-2 text-[11px] sm:text-xs text-[#4B6354]">
           <span className="font-semibold text-[#2D5A27]">
             {jurisdiction === "india" ? "🇮🇳 Indian Law Corpus" : "🌐 International Context"}
           </span>

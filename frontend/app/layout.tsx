@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Cormorant_Garamond, Playfair_Display, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 
@@ -27,6 +27,12 @@ export const metadata: Metadata = {
   description: "Authoritative, cited, bilingual AI guidance on Indian and International Intellectual Property, Biodiversity Access and Benefit Sharing (ABS), and Ayurvedic formulation regulations.",
 };
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+};
+
 export default function RootLayout({
   children,
 }: {
@@ -35,9 +41,11 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${sans.variable} ${playfair.variable} ${cormorant.variable} h-full antialiased`}
+      className={`${sans.variable} ${playfair.variable} ${cormorant.variable} h-full antialiased overflow-x-hidden`}
     >
-      <body className="min-h-full flex flex-col font-sans">{children}</body>
+      <body className="min-h-full flex flex-col font-sans overflow-x-hidden w-full max-w-full">
+        {children}
+      </body>
     </html>
   );
 }
