@@ -60,6 +60,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+@app.middleware("http")
+async def normalize_slashes(request, call_next):
+    """Normalize duplicate slashes in request paths (e.g., //health -> /health)."""
+    if "//" in request.scope.get("path", ""):
+        import re
+        request.scope["path"] = re.sub(r"/+", "/", request.scope["path"])
+    return await call_next(request)
+
 # Include API routers
 app.include_router(classify_router)
 app.include_router(health_router)
