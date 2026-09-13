@@ -25,6 +25,15 @@ const cormorant = Cormorant_Garamond({
 export const metadata: Metadata = {
   title: "IP-SAKTI Sahayak | Ayurveda IP & Regulatory Intelligence",
   description: "Authoritative, cited, bilingual AI guidance on Indian and International Intellectual Property, Biodiversity Access and Benefit Sharing (ABS), and Ayurvedic formulation regulations.",
+  icons: {
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/icon.png", type: "image/png" },
+    ],
+    apple: [
+      { url: "/apple-icon.png", type: "image/png" },
+    ],
+  },
 };
 
 export const viewport: Viewport = {
