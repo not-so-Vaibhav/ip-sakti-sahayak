@@ -79,7 +79,7 @@ export default function Home() {
       />
 
       {/* Main Tab Content */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 print:p-0 print:max-w-none flex flex-col">
+      <main className="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-6 lg:p-8 print:p-0 print:max-w-none flex flex-col min-w-0 max-w-full overflow-x-hidden">
         {activeTab === "landing" && (
           <LandingHero
             language={language}

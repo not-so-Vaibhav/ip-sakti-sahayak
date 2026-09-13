@@ -77,52 +77,54 @@ export const RegimeComparator: React.FC<RegimeComparatorProps> = ({ language = "
   const t = translations[language].comparator;
 
   return (
-    <div className="max-w-6xl mx-auto py-6 sm:py-8 px-4 sm:px-6">
+    <div className="w-full max-w-6xl mx-auto py-4 sm:py-8 px-2 sm:px-6 min-w-0">
       {/* Header */}
-      <div className="text-center space-y-2 mb-8">
+      <div className="text-center space-y-2 mb-6 sm:mb-8">
         <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#DEEED9] text-[#2D5A27] text-xs font-bold border border-[#7FB53D]/30 shadow-xs">
-          <Scale className="w-3.5 h-3.5 text-[#7FB53D]" />
+          <Scale className="w-3.5 h-3.5 text-[#7FB53D] shrink-0" />
           <span>{language === "hi" ? "द्विपक्षीय नियामक तुलना" : "Side-by-Side Regulatory Matrix"}</span>
         </div>
-        <h2 className="text-2xl sm:text-4xl font-serif-luxury font-bold text-[#1E2D24] tracking-tight">
+        <h2 className="text-xl sm:text-3xl lg:text-4xl font-serif-luxury font-bold text-[#1E2D24] tracking-tight leading-tight px-2">
           {t.title}
         </h2>
-        <p className="text-xs sm:text-sm text-[#4B6354] max-w-2xl mx-auto font-normal">
+        <p className="text-xs sm:text-sm text-[#4B6354] max-w-2xl mx-auto font-normal leading-relaxed px-2">
           {t.subtitle}
         </p>
       </div>
 
       {/* Topic Tabs */}
-      <div className="flex overflow-x-auto sm:flex-wrap gap-2 sm:gap-2.5 justify-start sm:justify-center mb-6 sm:mb-8 pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 no-scrollbar">
-        {REGIME_DATA.map((row, idx) => (
-          <button
-            key={idx}
-            onClick={() => setSelectedTopic(idx)}
-            className={`px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-2xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
-              selectedTopic === idx
-                ? "bg-[#7FB53D] text-white shadow-md shadow-[#7FB53D]/25 scale-[1.02]"
-                : "bg-white text-[#1E2D24] border border-[#D8EADB] hover:bg-[#DEEED9]/40"
-            }`}
-          >
-            {language === "hi" ? row.topicHi : row.topic}
-          </button>
-        ))}
+      <div className="w-full max-w-full overflow-hidden mb-6 sm:mb-8">
+        <div className="flex overflow-x-auto gap-2 sm:gap-2.5 pb-2 justify-start sm:justify-center no-scrollbar w-full px-1">
+          {REGIME_DATA.map((row, idx) => (
+            <button
+              key={idx}
+              onClick={() => setSelectedTopic(idx)}
+              className={`px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-2xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+                selectedTopic === idx
+                  ? "bg-[#7FB53D] text-white shadow-md shadow-[#7FB53D]/25 scale-[1.02]"
+                  : "bg-white text-[#1E2D24] border border-[#D8EADB] hover:bg-[#DEEED9]/40"
+              }`}
+            >
+              {language === "hi" ? row.topicHi : row.topic}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Active Comparison Card */}
       {(() => {
         const item = REGIME_DATA[selectedTopic];
         return (
-          <div className="ayur-card ayur-arch-lg shadow-xl overflow-hidden animate-in fade-in duration-150">
+          <div className="ayur-card rounded-2xl sm:ayur-arch-lg shadow-xl overflow-hidden animate-in fade-in duration-150 w-full min-w-0">
             {/* Title Bar */}
-            <div className="p-5 sm:p-6 bg-gradient-to-r from-[#2D5A27] to-[#1E431A] text-white flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <Leaf className="w-5 h-5 text-[#7FB53D]" />
-                <h3 className="text-base sm:text-lg font-extrabold">
+            <div className="p-4 sm:p-6 bg-gradient-to-r from-[#2D5A27] to-[#1E431A] text-white flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-4">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <Leaf className="w-5 h-5 text-[#7FB53D] shrink-0" />
+                <h3 className="text-sm sm:text-lg font-extrabold break-words">
                   {language === "hi" ? item.topicHi : item.topic}
                 </h3>
               </div>
-              <span className="text-[11px] font-bold uppercase px-3 py-1 rounded-full bg-white/15 text-emerald-200 border border-white/20">
+              <span className="text-[10px] sm:text-[11px] font-bold uppercase px-2.5 sm:px-3 py-1 rounded-full bg-white/15 text-emerald-200 border border-white/20 shrink-0 self-start sm:self-auto">
                 Regime Comparison
               </span>
             </div>
@@ -130,62 +132,62 @@ export const RegimeComparator: React.FC<RegimeComparatorProps> = ({ language = "
             {/* Side-by-side Matrix */}
             <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-[#D8EADB]">
               {/* India Column */}
-              <div className="p-6 sm:p-8 space-y-4 bg-[#DEEED9]/20">
+              <div className="p-4 sm:p-8 space-y-4 bg-[#DEEED9]/20 min-w-0">
                 <div className="flex items-center gap-2 text-xs font-extrabold uppercase tracking-wider text-[#2D5A27]">
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#7FB53D]" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#7FB53D] shrink-0" />
                   <span>{t.indiaHeader}</span>
                 </div>
 
-                <div className="p-4 rounded-2xl bg-white border border-[#D8EADB] shadow-xs">
+                <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-[#D8EADB] shadow-xs">
                   <span className="text-[11px] font-bold text-[#4B6354] uppercase tracking-wide block">
                     Statutory Instrument
                   </span>
-                  <p className="text-sm font-bold text-[#2D5A27] mt-1">
+                  <p className="text-xs sm:text-sm font-bold text-[#2D5A27] mt-1 break-words">
                     {item.indiaStatute}
                   </p>
                 </div>
 
-                <div className="text-sm text-[#1E2D24] leading-relaxed space-y-2">
-                  <span className="text-xs font-bold text-[#4B6354] uppercase tracking-wide block">
+                <div className="text-xs sm:text-sm text-[#1E2D24] leading-relaxed space-y-2">
+                  <span className="text-[11px] sm:text-xs font-bold text-[#4B6354] uppercase tracking-wide block">
                     Regulatory Provision & Rule
                   </span>
-                  <p>{language === "hi" ? item.indiaRuleHi : item.indiaRule}</p>
+                  <p className="break-words">{language === "hi" ? item.indiaRuleHi : item.indiaRule}</p>
                 </div>
               </div>
 
               {/* International Column */}
-              <div className="p-6 sm:p-8 space-y-4 bg-[#F3FFFB]">
+              <div className="p-4 sm:p-8 space-y-4 bg-[#F3FFFB] min-w-0">
                 <div className="flex items-center gap-2 text-xs font-extrabold uppercase tracking-wider text-[#2D5A27]">
-                  <Globe className="w-3.5 h-3.5 text-[#7FB53D]" />
+                  <Globe className="w-3.5 h-3.5 text-[#7FB53D] shrink-0" />
                   <span>{t.intlHeader}</span>
                 </div>
 
-                <div className="p-4 rounded-2xl bg-white border border-[#D8EADB] shadow-xs">
+                <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-[#D8EADB] shadow-xs">
                   <span className="text-[11px] font-bold text-[#4B6354] uppercase tracking-wide block">
                     International Treaty / Regulation
                   </span>
-                  <p className="text-sm font-bold text-[#2D5A27] mt-1">
+                  <p className="text-xs sm:text-sm font-bold text-[#2D5A27] mt-1 break-words">
                     {item.intlStatute}
                   </p>
                 </div>
 
-                <div className="text-sm text-[#1E2D24] leading-relaxed space-y-2">
-                  <span className="text-xs font-bold text-[#4B6354] uppercase tracking-wide block">
+                <div className="text-xs sm:text-sm text-[#1E2D24] leading-relaxed space-y-2">
+                  <span className="text-[11px] sm:text-xs font-bold text-[#4B6354] uppercase tracking-wide block">
                     Global Rule & Standards
                   </span>
-                  <p>{language === "hi" ? item.intlRuleHi : item.intlRule}</p>
+                  <p className="break-words">{language === "hi" ? item.intlRuleHi : item.intlRule}</p>
                 </div>
               </div>
             </div>
 
             {/* Key Takeaway Banner */}
-            <div className="p-5 sm:p-6 bg-[#FAF8F2] border-t border-[#D8EADB] flex items-start gap-3.5">
+            <div className="p-4 sm:p-6 bg-[#FAF8F2] border-t border-[#D8EADB] flex items-start gap-3">
               <CheckCircle className="w-5 h-5 text-[#7FB53D] shrink-0 mt-0.5" />
-              <div className="text-xs sm:text-sm text-[#1E2D24]">
+              <div className="text-xs sm:text-sm text-[#1E2D24] min-w-0">
                 <span className="font-extrabold text-[#2D5A27] mr-2">
                   {language === "hi" ? "प्रमुख निष्कर्ष:" : "Core Regulatory Takeaway:"}
                 </span>
-                <span className="leading-relaxed font-normal">{language === "hi" ? item.keyTakeawayHi : item.keyTakeaway}</span>
+                <span className="leading-relaxed font-normal break-words">{language === "hi" ? item.keyTakeawayHi : item.keyTakeaway}</span>
               </div>
             </div>
           </div>
