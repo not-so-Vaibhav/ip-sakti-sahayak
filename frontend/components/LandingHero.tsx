@@ -306,7 +306,7 @@ export const LandingHero: React.FC<LandingHeroProps> = ({
             </div>
 
             {/* Headline with Luxury Editorial Typography */}
-            <h1 className="text-4xl sm:text-6xl lg:text-[62px] font-serif-luxury font-bold text-[#1E2D24] tracking-tight leading-[1.08]">
+            <h1 className="text-3xl sm:text-5xl lg:text-[60px] font-serif-luxury font-bold text-[#1E2D24] tracking-tight leading-[1.12] sm:leading-[1.08]">
               {isHi ? (
                 <>
                   शास्त्रीय आयुर्वेद का गौरव,{" "}
@@ -325,78 +325,80 @@ export const LandingHero: React.FC<LandingHeroProps> = ({
             </h1>
 
             {/* Subtitle */}
-            <p className="text-base sm:text-lg text-[#4B6354] leading-relaxed max-w-2xl font-normal font-sans">
+            <p className="text-sm sm:text-base lg:text-lg text-[#4B6354] leading-relaxed max-w-2xl font-normal font-sans">
               {isHi
                 ? "भारतीय पेटेंट अधिनियम 1970, जैव विविधता अधिनियम (NBA), ड्रग्स एंड कॉस्मेटिक्स एक्ट एवं FSSAI आयुर्वेद आहार के लिए 100% सांविधिक संदर्भों से प्रमाणित एआई मार्गदर्शन।"
                 : "Authoritative, citation-grounded statutory intelligence for Ayurvedic formulations, phytopharmaceuticals, botanical patent filings, and FSSAI compliance."}
             </p>
 
             {/* Main Action Buttons */}
-            <div className="flex flex-wrap items-center gap-3.5 pt-2">
+            <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2.5 sm:gap-3.5 pt-2">
               <button
                 onClick={() => onNavigateToTab("chat")}
-                className="inline-flex items-center gap-2.5 px-7 py-3.5 rounded-full bg-[#7FB53D] hover:bg-[#6EA033] text-white font-extrabold text-sm sm:text-base shadow-lg shadow-[#7FB53D]/30 transition-all hover:scale-[1.03] active:scale-[0.98] cursor-pointer"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-6 sm:px-7 py-3 sm:py-3.5 rounded-full bg-[#7FB53D] hover:bg-[#6EA033] text-white font-extrabold text-sm sm:text-base shadow-lg shadow-[#7FB53D]/30 transition-all hover:scale-[1.03] active:scale-[0.98] cursor-pointer"
               >
-                <MessageSquare className="w-5 h-5" />
+                <MessageSquare className="w-4 h-4 sm:w-5 sm:h-5" />
                 <span>
                   {isHi ? "नियामक सहायक से पूछें" : "Ask Regulatory Assistant"}
                 </span>
-                <ArrowRight className="w-4 h-4 ml-1" />
+                <ArrowRight className="w-4 h-4 ml-0.5" />
               </button>
 
               <button
                 onClick={() => onNavigateToTab("classifier")}
-                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full bg-[#DEEED9] hover:bg-[#cde4c7] text-[#2D5A27] font-extrabold text-sm sm:text-base border border-[#7FB53D]/40 transition-all hover:scale-[1.03] active:scale-[0.98] cursor-pointer shadow-xs"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 sm:px-6 py-3 sm:py-3.5 rounded-full bg-[#DEEED9] hover:bg-[#cde4c7] text-[#2D5A27] font-extrabold text-sm sm:text-base border border-[#7FB53D]/40 transition-all hover:scale-[1.03] active:scale-[0.98] cursor-pointer shadow-xs"
               >
-                <Sparkles className="w-5 h-5 text-[#7FB53D]" />
+                <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-[#7FB53D]" />
                 <span>
                   {isHi ? "फॉर्मूलेशन क्लासिफाई करें" : "Classify Formulation"}
                 </span>
               </button>
 
-              <button
-                onClick={() => onNavigateToTab("comparator")}
-                className="inline-flex items-center gap-2 px-5 py-3.5 rounded-full bg-white hover:bg-slate-50 text-[#1E2D24] font-bold text-sm border border-[#D8EADB] transition-colors shadow-xs cursor-pointer"
-              >
-                <Scale className="w-4 h-4 text-[#7FB53D]" />
-                <span>{isHi ? "कानूनी तुलना" : "Compare Regimes"}</span>
-              </button>
+              <div className="grid grid-cols-2 sm:flex sm:items-center gap-2.5 w-full sm:w-auto">
+                <button
+                  onClick={() => onNavigateToTab("comparator")}
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 sm:gap-2 px-4 sm:px-5 py-3 sm:py-3.5 rounded-full bg-white hover:bg-slate-50 text-[#1E2D24] font-bold text-xs sm:text-sm border border-[#D8EADB] transition-colors shadow-xs cursor-pointer"
+                >
+                  <Scale className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#7FB53D]" />
+                  <span>{isHi ? "कानूनी तुलना" : "Compare Regimes"}</span>
+                </button>
 
-              <button
-                onClick={() => onNavigateToTab("investigate")}
-                className="inline-flex items-center gap-2 px-5 py-3.5 rounded-full bg-[#1E2D24] hover:bg-[#2D5A27] text-white font-bold text-sm shadow-md transition-all hover:scale-[1.03] active:scale-[0.98] cursor-pointer"
-              >
-                <ShieldCheck className="w-4 h-4 text-[#7FB53D]" />
-                <span>{isHi ? "IP जांच इंजन" : "IP Investigation"}</span>
-              </button>
+                <button
+                  onClick={() => onNavigateToTab("investigate")}
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 sm:gap-2 px-4 sm:px-5 py-3 sm:py-3.5 rounded-full bg-[#1E2D24] hover:bg-[#2D5A27] text-white font-bold text-xs sm:text-sm shadow-md transition-all hover:scale-[1.03] active:scale-[0.98] cursor-pointer"
+                >
+                  <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#7FB53D]" />
+                  <span>{isHi ? "IP जांच इंजन" : "IP Investigation"}</span>
+                </button>
+              </div>
             </div>
 
             {/* Trust Badges */}
-            <div className="pt-2 flex flex-wrap items-center gap-5 text-xs sm:text-sm font-semibold text-[#4B6354]">
-              <span className="inline-flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-[#7FB53D]" />
+            <div className="pt-2 flex flex-wrap items-center gap-3.5 sm:gap-5 text-xs sm:text-sm font-semibold text-[#4B6354]">
+              <span className="inline-flex items-center gap-1.5 sm:gap-2">
+                <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#7FB53D]" />
                 {isHi
                   ? "शून्य भ्रम (Zero Hallucination)"
                   : "Zero-Hallucination Firewall"}
               </span>
-              <span className="inline-flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-[#7FB53D]" />
+              <span className="inline-flex items-center gap-1.5 sm:gap-2">
+                <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#7FB53D]" />
                 {isHi ? "100% राजपत्र प्रमाणित" : "100% Gazette Grounded"}
               </span>
-              <span className="inline-flex items-center gap-2">
-                <Globe className="w-4 h-4 text-[#7FB53D]" />
+              <span className="inline-flex items-center gap-1.5 sm:gap-2">
+                <Globe className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#7FB53D]" />
                 {isHi ? "द्विभाषी (हिंदी + EN)" : "Bilingual (EN + हिंदी)"}
               </span>
             </div>
           </div>
 
           {/* Hero Right: Arched Botanical Picture Frame */}
-          <div className="lg:col-span-5 flex justify-center">
-            <div className="relative w-full max-w-md sm:max-w-lg">
+          <div className="lg:col-span-5 flex justify-center w-full">
+            <div className="relative w-full max-w-sm sm:max-w-md lg:max-w-lg">
               {/* Arched Outer Vessel */}
               <div className="ayur-treatment-arch bg-gradient-to-b from-[#DEEED9] to-white p-3 sm:p-4 border border-[#7FB53D]/35 shadow-2xl relative overflow-hidden">
                 {/* Embedded Botanical Artwork */}
-                <div className="relative w-full h-80 sm:h-96 rounded-t-[105px] rounded-b-2xl overflow-hidden shadow-inner">
+                <div className="relative w-full h-64 sm:h-80 lg:h-96 rounded-t-[80px] sm:rounded-t-[105px] rounded-b-2xl overflow-hidden shadow-inner">
                   <Image
                     src="/images/ayurveda_hero.jpg"
                     alt="Ayurvedic Botanical Remedies"
@@ -407,11 +409,11 @@ export const LandingHero: React.FC<LandingHeroProps> = ({
                   <div className="absolute inset-0 bg-gradient-to-t from-[#1E2D24]/85 via-transparent to-transparent" />
 
                   {/* Overlaid Title */}
-                  <div className="absolute bottom-4 left-4 right-4 text-white">
-                    <span className="text-[10px] uppercase tracking-widest font-extrabold text-[#7FB53D] bg-white/95 px-2.5 py-0.5 rounded-full inline-block mb-1 shadow-xs">
+                  <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 right-3 sm:right-4 text-white">
+                    <span className="text-[9px] sm:text-[10px] uppercase tracking-widest font-extrabold text-[#7FB53D] bg-white/95 px-2.5 py-0.5 rounded-full inline-block mb-1 shadow-xs">
                       {isHi ? "सांविधिक सुरक्षा" : "Statutory Assurance"}
                     </span>
-                    <h4 className="text-base sm:text-lg font-serif-luxury font-bold text-white drop-shadow-sm">
+                    <h4 className="text-sm sm:text-base lg:text-lg font-serif-luxury font-bold text-white drop-shadow-sm">
                       {isHi
                         ? "प्रामाणिक आयुर्वेदिक ज्ञान का संरक्षण"
                         : "Heritage Preserved, Innovation Protected"}
@@ -420,28 +422,28 @@ export const LandingHero: React.FC<LandingHeroProps> = ({
                 </div>
 
                 {/* Floating Micro-Pill Indicators */}
-                <div className="mt-3.5 grid grid-cols-3 gap-2 text-center text-xs">
-                  <div className="p-2.5 rounded-xl bg-white border border-[#DEEED9] shadow-xs">
-                    <p className="font-extrabold text-[#7FB53D] text-sm">
+                <div className="mt-2.5 sm:mt-3.5 grid grid-cols-3 gap-1.5 sm:gap-2 text-center text-xs">
+                  <div className="p-2 sm:p-2.5 rounded-xl bg-white border border-[#DEEED9] shadow-xs">
+                    <p className="font-extrabold text-[#7FB53D] text-xs sm:text-sm">
                       Sec 3(p)
                     </p>
-                    <p className="text-[10px] text-slate-500 font-medium truncate">
+                    <p className="text-[9px] sm:text-[10px] text-slate-500 font-medium truncate">
                       TK Bar
                     </p>
                   </div>
-                  <div className="p-2.5 rounded-xl bg-white border border-[#DEEED9] shadow-xs">
-                    <p className="font-extrabold text-[#2D5A27] text-sm">
+                  <div className="p-2 sm:p-2.5 rounded-xl bg-white border border-[#DEEED9] shadow-xs">
+                    <p className="font-extrabold text-[#2D5A27] text-xs sm:text-sm">
                       NBA Sec 6
                     </p>
-                    <p className="text-[10px] text-slate-500 font-medium truncate">
+                    <p className="text-[9px] sm:text-[10px] text-slate-500 font-medium truncate">
                       ABS Approval
                     </p>
                   </div>
-                  <div className="p-2.5 rounded-xl bg-white border border-[#DEEED9] shadow-xs">
-                    <p className="font-extrabold text-amber-600 text-sm">
+                  <div className="p-2 sm:p-2.5 rounded-xl bg-white border border-[#DEEED9] shadow-xs">
+                    <p className="font-extrabold text-amber-600 text-xs sm:text-sm">
                       Rule 122E
                     </p>
-                    <p className="text-[10px] text-slate-500 font-medium truncate">
+                    <p className="text-[9px] sm:text-[10px] text-slate-500 font-medium truncate">
                       4 Markers
                     </p>
                   </div>

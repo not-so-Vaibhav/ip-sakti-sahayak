@@ -32,20 +32,20 @@ export const Header: React.FC<HeaderProps> = ({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 sm:h-18 gap-3 sm:gap-4">
           {/* LEFT: Brand Logo & Title */}
-          <div className="flex items-center gap-3 shrink-0">
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             <button
               onClick={() => setActiveTab("landing")}
-              className="flex items-center gap-2.5 sm:gap-3 text-left group cursor-pointer"
+              className="flex items-center gap-2 sm:gap-3 text-left group cursor-pointer"
             >
-              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-[#7FB53D] to-[#2D5A27] flex items-center justify-center text-white shadow-md shadow-[#7FB53D]/25 group-hover:scale-105 transition-transform shrink-0">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-[#7FB53D] to-[#2D5A27] flex items-center justify-center text-white shadow-md shadow-[#7FB53D]/25 group-hover:scale-105 transition-transform shrink-0">
                 <Leaf className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
               </div>
               <div className="flex flex-col">
-                <div className="flex items-center gap-2">
-                  <h1 className="text-lg sm:text-xl font-serif-luxury font-bold text-[#1E2D24] tracking-tight group-hover:text-[#2D5A27] transition-colors whitespace-nowrap">
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  <h1 className="text-base sm:text-xl font-serif-luxury font-bold text-[#1E2D24] tracking-tight group-hover:text-[#2D5A27] transition-colors whitespace-nowrap">
                     {t.appName}
                   </h1>
-                  <span className="text-[10px] font-bold px-2 py-0.5 bg-[#DEEED9] text-[#2D5A27] border border-[#7FB53D]/30 rounded-full inline-flex items-center gap-1">
+                  <span className="text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 bg-[#DEEED9] text-[#2D5A27] border border-[#7FB53D]/30 rounded-full inline-flex items-center gap-1">
                     <span
                       className={`w-1.5 h-1.5 rounded-full ${
                         backendOnline ? "bg-[#7FB53D] animate-pulse" : "bg-amber-400"
@@ -54,7 +54,7 @@ export const Header: React.FC<HeaderProps> = ({
                     v1.0
                   </span>
                 </div>
-                <p className="text-[10px] sm:text-[11px] text-[#4B6354] font-medium hidden sm:block whitespace-nowrap tracking-wide">
+                <p className="text-[10px] sm:text-[11px] text-[#4B6354] font-medium hidden md:block whitespace-nowrap tracking-wide">
                   {t.appTagline}
                 </p>
               </div>
@@ -181,10 +181,11 @@ export const Header: React.FC<HeaderProps> = ({
             {isLanding && (
               <button
                 onClick={() => setActiveTab("chat")}
-                className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-[#2D5A27] hover:bg-[#3D7A35] text-white font-bold text-xs sm:text-sm shadow-md shadow-[#2D5A27]/20 transition-all hover:scale-105 cursor-pointer whitespace-nowrap"
+                className="inline-flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-5 py-1.5 sm:py-2 rounded-full bg-[#2D5A27] hover:bg-[#3D7A35] text-white font-bold text-xs sm:text-sm shadow-md shadow-[#2D5A27]/20 transition-all hover:scale-105 cursor-pointer whitespace-nowrap"
               >
-                <span>{isHi ? "शुरू करें" : "Launch Assistant"}</span>
-                <ArrowRight className="w-4 h-4" />
+                <span>{isHi ? "शुरू करें" : "Launch"}</span>
+                <span className="hidden sm:inline">{!isHi && "Assistant"}</span>
+                <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </button>
             )}
           </div>
@@ -192,17 +193,17 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Mobile & Tablet Navigation Bar (Shown inside workspace on screens below lg) */}
         {!isLanding && (
-          <div className="lg:hidden pb-3 pt-1 flex items-center justify-start gap-1.5 overflow-x-auto no-scrollbar">
+          <div className="lg:hidden pb-2.5 pt-1 -mx-4 px-4 sm:mx-0 sm:px-0 flex items-center justify-start gap-1.5 overflow-x-auto no-scrollbar">
             <button
               onClick={() => setActiveTab("landing")}
-              className="px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap bg-[#F3FFFB] text-[#4B6354] border border-[#D8EADB]/60 flex items-center gap-1"
+              className="px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap bg-[#F3FFFB] text-[#4B6354] border border-[#D8EADB]/60 flex items-center gap-1 shrink-0"
             >
               <Home className="w-3 h-3" />
               <span>{isHi ? "होम" : "Overview"}</span>
             </button>
             <button
               onClick={() => setActiveTab("chat")}
-              className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap flex items-center gap-1 ${
+              className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap flex items-center gap-1 shrink-0 ${
                 activeTab === "chat" ? "bg-[#2D5A27] text-white" : "bg-[#F3FFFB] text-[#4B6354] border border-[#D8EADB]/60"
               }`}
             >
@@ -211,7 +212,7 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
             <button
               onClick={() => setActiveTab("classifier")}
-              className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap flex items-center gap-1 ${
+              className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap flex items-center gap-1 shrink-0 ${
                 activeTab === "classifier" ? "bg-[#2D5A27] text-white" : "bg-[#F3FFFB] text-[#4B6354] border border-[#D8EADB]/60"
               }`}
             >
@@ -220,7 +221,7 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
             <button
               onClick={() => setActiveTab("comparator")}
-              className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap flex items-center gap-1 ${
+              className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap flex items-center gap-1 shrink-0 ${
                 activeTab === "comparator" ? "bg-[#2D5A27] text-white" : "bg-[#F3FFFB] text-[#4B6354] border border-[#D8EADB]/60"
               }`}
             >
@@ -229,7 +230,7 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
             <button
               onClick={() => setActiveTab("investigate")}
-              className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap flex items-center gap-1 ${
+              className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap flex items-center gap-1 shrink-0 ${
                 activeTab === "investigate" ? "bg-[#2D5A27] text-white" : "bg-[#F3FFFB] text-[#4B6354] border border-[#D8EADB]/60"
               }`}
             >

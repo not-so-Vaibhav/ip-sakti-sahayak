@@ -93,12 +93,12 @@ export const RegimeComparator: React.FC<RegimeComparatorProps> = ({ language = "
       </div>
 
       {/* Topic Tabs */}
-      <div className="flex flex-wrap gap-2.5 justify-center mb-8">
+      <div className="flex overflow-x-auto sm:flex-wrap gap-2 sm:gap-2.5 justify-start sm:justify-center mb-6 sm:mb-8 pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 no-scrollbar">
         {REGIME_DATA.map((row, idx) => (
           <button
             key={idx}
             onClick={() => setSelectedTopic(idx)}
-            className={`px-4 py-2.5 rounded-2xl text-xs font-bold transition-all cursor-pointer ${
+            className={`px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-2xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
               selectedTopic === idx
                 ? "bg-[#7FB53D] text-white shadow-md shadow-[#7FB53D]/25 scale-[1.02]"
                 : "bg-white text-[#1E2D24] border border-[#D8EADB] hover:bg-[#DEEED9]/40"
